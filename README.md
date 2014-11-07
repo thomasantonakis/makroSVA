@@ -18,6 +18,7 @@ In the working directory, there has to be another folder named `Input`, where th
 7. Customer_Discounts.xls (or optionally a folder named `CU_Discounts` containing 9 files.)
 8. Stock_Valuation_COMS.xls (or something containing the Aging Factors per Article Group
 9. SO_per_Group.xls
+10. vs_Adl (for reconciliation)
 
 
 ### Steps - Check List
