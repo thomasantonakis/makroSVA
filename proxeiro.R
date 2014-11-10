@@ -21,17 +21,47 @@ init_stock_check_99<-data.frame("STORE_NO" = 99, "STOCK_VALUE_MUV" = sum(TP99_in
 init_stock_check<-rbind(init_stock_check_stores, init_stock_check_TP, init_stock_check_99)
 rm(init_stock_check_stores,init_stock_check_TP,init_stock_check_99)
 # Extract the HO prices fot the 99 WH
-99_init<-sqlFetch(channel, "1000_HO_Articles")
+HO_prices<-sqlFetch(channel, "1000_HO_Articles")
 # Close the channel with the MS Access Database
 odbcClose(channel)
 #Read the stores 10 and 11
+library(xlsx)
+# store_10<-read.xlsx2("./Original/files received/Stores_10_and_11.xlsx", sheetIndex=1,
+#                     startRow = 10, header=FALSE,stringsAsFactors=FALSE,colClasses =
+#         c("factor", "factor", "factor", "factor","factor", "factor", "numeric", "numeric", "numeric"))
+store_10<-read.xlsx2("./Original/files received/Stores_10_and_11.xlsx", sheetIndex=1,
+                     startRow = 10, header=FALSE,stringsAsFactors=FALSE)
+store_10<-store_10[,!names(store_10) %in% c("X1","X4")]
+names(store_10)<-c("F_NF", "ART_GRP_NO", "ART_NO", "DESCR", "STOCK_VALUE_MUV", "STOCK", "STOCK_VALUE_SELL_PR")
+store_10$F_NF<- gsub("NONFOOD", "NON_FOOD", store_10$F_NF)
+store_10$STOCK_VALUE_MUV<-as.numeric(store_10$STOCK_VALUE_MUV)
+store_10$STOCK<-as.numeric(store_10$STOCK)
+store_10$STOCK_VALUE_SELL_PR<-as.numeric(store_10$STOCK_VALUE_SELL_PR)
+store_10$tot<- store_10$STOCK_VALUE_MUV+store_10$STOCK+store_10$STOCK_VALUE_SELL_PR 
+store_10<-store_10[store_10$tot!=0,]
+store_10$tot<-NULL
+store_11<-read.xlsx2("./Original/files received/Stores_10_and_11.xlsx", sheetIndex=2
+                     ,startRow = 10, header=FALSE,stringsAsFactors=FALSE)
+store_11<-store_11[,!names(store_11) %in% c("X1","X4")]
+names(store_11)<-c("F_NF", "ART_GRP_NO", "ART_NO", "DESCR", "STOCK_VALUE_MUV", "STOCK", "STOCK_VALUE_SELL_PR")
+store_11$F_NF<- gsub("NONFOOD", "NON_FOOD", store_11$F_NF)
+store_11$STOCK_VALUE_MUV<-as.numeric(store_11$STOCK_VALUE_MUV)
+store_11$STOCK<-as.numeric(store_11$STOCK)
+store_11$STOCK_VALUE_SELL_PR<-as.numeric(store_11$STOCK_VALUE_SELL_PR)
+store_11$tot<- store_11$STOCK_VALUE_MUV+store_11$STOCK+store_11$STOCK_VALUE_SELL_PR 
+store_11<-store_11[store_11$F_NF=="FOOD" |store_11$F_NF=="NON_FOOD" ,]
+store_11<-store_11[store_11$tot!=0,]
+store_11$tot<-NULL
 
-
+init_stock_check_10<-data.frame("STORE_NO" = 10, "STOCK_VALUE_MUV" = sum(store_10$STOCK_VALUE_MUV))
+init_stock_check_11<-data.frame("STORE_NO" = 11, "STOCK_VALUE_MUV" = sum(store_11$STOCK_VALUE_MUV))
+init_stock_check<-rbind(init_stock_check, init_stock_check_10, init_stock_check_11)
+rm(init_stock_check_10,init_stock_check_11)
 #Breakdown the store_init DataFrame to 9 smaller Dataframes
 
 #Breakdown the third_parties_init DataFrame to 3 smaller Dataframes
 
-library(xlsx)
+
 # COP_expenses
 cop<-read.xlsx("./Original/SVA2014_COP_Sep14.xls", sheetName="COP",
                colIndex=1:20, rowIndex=42:43, header=FALSE)
