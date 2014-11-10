@@ -8,20 +8,28 @@ stores_init<-sqlFetch(channel, "STORES_DATA_EXPORT")
 names(stores_init)
 # Table per Store for Stock NNBP checkng Later
 library(plyr)
-init_stock_check_stores<-ddply(stores_init,("STORE_NO"), summarize, STOCK_VALUE_MUV=sum(STOCK_VALUE_MUV))
+init_stock_check_stores<-ddply(stores_init,("STORE_NO"), summarize, STOCK_VALUE_MUV=sum(STOCK_VALUE_MUV)
+                               ,STOCK_VALUE_SELL_PR=sum(STOCK_VALUE_SELL_PR))
 # Extract the third parties stock per article
 third_parties_init<-sqlFetch(channel, "6000_Third_Parties")
 names(third_parties_init)
 # Table per Store for Stock NNBP checkng Later
-init_stock_check_TP<-ddply(third_parties_init,("STORE_NO"), summarize, STOCK_VALUE_MUV=sum(STOCK_VALUE_MUV))
+init_stock_check_TP<-ddply(third_parties_init,("STORE_NO"), summarize, STOCK_VALUE_MUV=sum(STOCK_VALUE_MUV)
+                           ,STOCK_VALUE_SELL_PR=sum(STOCK_VALUE_SELL_PR))
+# Extract the HO prices fot the 99 WH
+HO_prices<-sqlFetch(channel, "1000_HO_Articles")
 # Extract the Other TP stock per article
 TP99_init<-sqlFetch(channel, "99_oct14")
 names(TP99_init)<-c("ART_NO", "ART_GRP_NO", "Sub", "DESCR",  "STOCK", "STOCK_VALUE_MUV", "Buyer")
-init_stock_check_99<-data.frame("STORE_NO" = 99, "STOCK_VALUE_MUV" = sum(TP99_init$STOCK_VALUE_MUV))
+TP99_sell_pr<-merge(x = TP99_init, y = HO_prices,all.x = TRUE)
+TP99_sell_pr<-merge(x = TP99_init, y = HO_prices,all.x = TRUE, by.x = "ART_NO", by.y = "ART_NO")
+TP99_sell_pr<-TP99_sell_pr[,names(TP99_sell_pr) %in% c("F_NF", "ART_GRP_NO.x","ART_NO","SELL_PR", "DESCR.x", "STOCK", "STOCK_VALUE_MUV" )]
+TP99_sell_pr$STOCK_VALUE_SELL_PR<-TP99_sell_pr$SELL_PR * TP99_sell_pr$STOCK
+init_stock_check_99<-data.frame("STORE_NO" = 99, "STOCK_VALUE_MUV" = sum(TP99_sell_pr$STOCK_VALUE_MUV)
+                                ,STOCK_VALUE_SELL_PR=sum(TP99_sell_pr$STOCK_VALUE_SELL_PR))
 init_stock_check<-rbind(init_stock_check_stores, init_stock_check_TP, init_stock_check_99)
 rm(init_stock_check_stores,init_stock_check_TP,init_stock_check_99)
-# Extract the HO prices fot the 99 WH
-HO_prices<-sqlFetch(channel, "1000_HO_Articles")
+
 # Close the channel with the MS Access Database
 odbcClose(channel)
 #Read the stores 10 and 11
