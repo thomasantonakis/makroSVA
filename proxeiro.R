@@ -2,13 +2,13 @@ setwd("D:/Data_Science/GitHub/makroSVA")
 ####
 # Set timer
 ####
-
+ptm <- proc.time()
 # Read from MS Access Database
 library(RODBC)
 channel<- odbcConnectAccess("sva")
 # Extract the stores stock per article
 stores_init<-sqlFetch(channel, "STORES_DATA_EXPORT")
-names(stores_init)
+proc.time() - ptm
 # Table per Store for Stock NNBP checkng Later
 library(plyr)
 init_stock_check_stores<-ddply(stores_init,("STORE_NO"), summarize, STOCK_VALUE_MUV=sum(STOCK_VALUE_MUV)
@@ -35,6 +35,7 @@ rm(init_stock_check_stores,init_stock_check_TP,init_stock_check_99)
 
 # Close the channel with the MS Access Database
 odbcClose(channel)
+proc.time() - ptm
 #Read the stores 10 and 11
 library(xlsx)
 gc()
@@ -72,7 +73,7 @@ init_stock_check_11<-data.frame("STORE_NO" = 11, "STOCK_VALUE_MUV" = sum(store_1
                                 ,STOCK_VALUE_SELL_PR=sum(store_11$STOCK_VALUE_SELL_PR))
 init_stock_check<-rbind(init_stock_check, init_stock_check_10, init_stock_check_11)
 rm(init_stock_check_10,init_stock_check_11)
-
+proc.time() - ptm
 # Check Stock Value with Stat_Margin
 officialstock<-data.frame("STORE_NO" = 1:13, "off_stock_muv" = rep(0,13))
 officialstock$off_stock_muv[1]<-read.xlsx("./Original/Stat_Margin_0115.xls", sheetName="Kif",
@@ -126,7 +127,7 @@ officialstock$received[13]<-init_stock_check$STOCK_VALUE_MUV[init_stock_check$ST
 officialstock$off_stock_muv<-c(do.call("cbind",officialstock$off_stock_muv)) 
 officialstock$check<-round(officialstock$received - officialstock$off_stock_muv, 2)
 gc()
-
+proc.time() - ptm
 #Breakdown the store_init DataFrame to 9 smaller Dataframes
 
 #Breakdown the third_parties_init DataFrame to 3 smaller Dataframes
@@ -263,9 +264,40 @@ if (sum(Perc_store[,4] == Perc_store[,1])==max(dim(Perc_store))){
 Perc_store<- Perc_store[-c(4,7)]
 }
 rm(Perc_2040, Perc_reticd)
+proc.time() - ptm
 # else print message
 
 
 # Aging
+aging<-read.xlsx("./Original/StockValuation_Structure_COM's.xls", sheetName="Min",
+                 colIndex=3:10, rowIndex=1:398, header=T)
+gc()
+names(aging)[1]<-"ART_GRP_NO"
+# SO_per Group
+so_grp<-read.xlsx("./Original/SO_per_group_Oct14.xlsx", sheetName="Sheet1",
+                  colIndex=1:4,rowIndex=3:400,  header=T)
+gc()
+names(so_grp)<-c("ART_GRP_NO", "SalesP", "SO", "SO_pct") 
 
+
+# CU_Discounts
+#######################################
+##### Check Methodology, Prefer raw MDW
+#######################################
+cu_disc=data.frame()
+for (i in 1:9){
+df_temp<-read.xlsx2("./Original/CustomerDisc_ALLFD&NF_Oct14.xls", sheetIndex=i ,colIndex=1:6, 
+                    startRow = 4, header=F)
+print (dim(df_temp))
+df_temp$X1<-i
+cu_disc<-rbind(cu_disc,df_temp)
+df_temp<-0
+gc()
+print (i)
+}
+gc()
+# names
+# drop unnecessary columns
+# calculate percentage
+# correct percentage
 
