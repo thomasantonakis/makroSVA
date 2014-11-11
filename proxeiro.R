@@ -83,12 +83,119 @@ sellcost<-read.xlsx("./Original/SVA2014_SellCost_Sep14.xls", sheetName="SC",
 sellcost<-subset(sellcost, select=c(X1, X11))
 names(sellcost)<- c("F_NF", "SellCost%")
 
-
-
-library(XLConnect)
-wk <- loadWorkbook("~/Original/Stat_Margin_0115.xls")
-
-library(xlsx)
 # Percentage Use
+#20.40 1-7, 11-12
+Perc_2040_kif<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=1,
+                         colIndex=1:8, rowIndex=1:398, header=TRUE)
+Perc_2040_kif<- Perc_2040_kif[ -c(2:7) ]
+names(Perc_2040_kif)<-c("ART_GRP_NO", "OPC")
+Perc_2040_kif$Store<-1
+Perc_2040_pal<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=2,
+                         colIndex=1:8, rowIndex=1:398, header=TRUE)
+Perc_2040_pal<- Perc_2040_pal[ -c(2:7) ]
+names(Perc_2040_pal)<-c("ART_GRP_NO", "OPC")
+Perc_2040_pal$Store<-2
+Perc_2040_the<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=3,
+                         colIndex=1:8, rowIndex=1:398, header=TRUE)
+Perc_2040_the<- Perc_2040_the[ -c(2:7) ]
+names(Perc_2040_the)<-c("ART_GRP_NO", "OPC")
+Perc_2040_the$Store<-3
+Perc_2040_cre<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=4,
+                         colIndex=1:8, rowIndex=1:398, header=TRUE)
+Perc_2040_cre<- Perc_2040_cre[ -c(2:7) ]
+names(Perc_2040_cre)<-c("ART_GRP_NO", "OPC")
+Perc_2040_cre$Store<-4
+Perc_2040_pat<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=5,
+                         colIndex=1:8, rowIndex=1:398, header=TRUE)
+Perc_2040_pat<- Perc_2040_pat[ -c(2:7) ]
+names(Perc_2040_pat)<-c("ART_GRP_NO", "OPC")
+Perc_2040_pat$Store<-5
+Perc_2040_lar<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=6,
+                         colIndex=1:8, rowIndex=1:398, header=TRUE)
+Perc_2040_lar<- Perc_2040_lar[ -c(2:7) ]
+names(Perc_2040_lar)<-c("ART_GRP_NO", "OPC")
+Perc_2040_lar$Store<-6
+Perc_2040_ion<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=7,
+                         colIndex=1:8, rowIndex=1:398, header=TRUE)
+Perc_2040_ion<- Perc_2040_ion[ -c(2:7) ]
+names(Perc_2040_ion)<-c("ART_GRP_NO", "OPC")
+Perc_2040_ion$Store<-7
+Perc_2040_xan<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=11,
+                         colIndex=1:8, rowIndex=1:398, header=TRUE)
+Perc_2040_xan<- Perc_2040_xan[ -c(2:7) ]
+names(Perc_2040_xan)<-c("ART_GRP_NO", "OPC")
+Perc_2040_xan$Store<-8
+Perc_2040_vol<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=12,
+                         colIndex=1:8, rowIndex=1:398, header=TRUE)
+Perc_2040_vol<- Perc_2040_vol[ -c(2:7) ]
+names(Perc_2040_vol)<-c("ART_GRP_NO", "OPC")
+Perc_2040_vol$Store<-9
 
+Perc_2040<-rbind(Perc_2040_kif, Perc_2040_pal, Perc_2040_the, 
+                 Perc_2040_cre, Perc_2040_pat, Perc_2040_lar, 
+                 Perc_2040_ion, Perc_2040_xan, Perc_2040_vol)
+rm(Perc_2040_kif, Perc_2040_pal, Perc_2040_the, 
+                 Perc_2040_cre, Perc_2040_pat, Perc_2040_lar, 
+                 Perc_2040_ion, Perc_2040_xan, Perc_2040_vol)
+
+
+# Retros + ICD's 15:23
+Perc_reticd_kif<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15,
+                colIndex=1:14, rowIndex=1:398, header=TRUE)
+Perc_reticd_kif<- Perc_reticd_kif[ -c(2:9, 11:13) ]
+names(Perc_reticd_kif)<-c("ART_GRP_NO", "RETROS", "ICD")
+Perc_reticd_kif$Store<-1
+Perc_reticd_pal<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15,
+                           colIndex=1:14, rowIndex=1:398, header=TRUE)
+Perc_reticd_pal<- Perc_reticd_pal[ -c(2:9, 11:13) ]
+names(Perc_reticd_pal)<-c("ART_GRP_NO", "RETROS", "ICD")
+Perc_reticd_pal$Store<-2
+Perc_reticd_the<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15,
+                           colIndex=1:14, rowIndex=1:398, header=TRUE)
+Perc_reticd_the<- Perc_reticd_the[ -c(2:9, 11:13) ]
+names(Perc_reticd_the)<-c("ART_GRP_NO", "RETROS", "ICD")
+Perc_reticd_the$Store<-3
+Perc_reticd_cre<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15,
+                           colIndex=1:14, rowIndex=1:398, header=TRUE)
+Perc_reticd_cre<- Perc_reticd_cre[ -c(2:9, 11:13) ]
+names(Perc_reticd_cre)<-c("ART_GRP_NO", "RETROS", "ICD")
+Perc_reticd_cre$Store<-4
+Perc_reticd_pat<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15,
+                           colIndex=1:14, rowIndex=1:398, header=TRUE)
+Perc_reticd_pat<- Perc_reticd_pat[ -c(2:9, 11:13) ]
+names(Perc_reticd_pat)<-c("ART_GRP_NO", "RETROS", "ICD")
+Perc_reticd_pat$Store<-5
+Perc_reticd_lar<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15,
+                           colIndex=1:14, rowIndex=1:398, header=TRUE)
+Perc_reticd_lar<- Perc_reticd_lar[ -c(2:9, 11:13) ]
+names(Perc_reticd_lar)<-c("ART_GRP_NO", "RETROS", "ICD")
+Perc_reticd_lar$Store<-6
+Perc_reticd_ion<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15,
+                           colIndex=1:14, rowIndex=1:398, header=TRUE)
+Perc_reticd_ion<- Perc_reticd_ion[ -c(2:9, 11:13) ]
+names(Perc_reticd_ion)<-c("ART_GRP_NO", "RETROS", "ICD")
+Perc_reticd_ion$Store<-7
+Perc_reticd_xan<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15,
+                           colIndex=1:14, rowIndex=1:398, header=TRUE)
+Perc_reticd_xan<- Perc_reticd_xan[ -c(2:9, 11:13) ]
+names(Perc_reticd_xan)<-c("ART_GRP_NO", "RETROS", "ICD")
+Perc_reticd_xan$Store<-8
+Perc_reticd_vol<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15,
+                           colIndex=1:14, rowIndex=1:398, header=TRUE)
+Perc_reticd_vol<- Perc_reticd_vol[ -c(2:9, 11:13) ]
+names(Perc_reticd_vol)<-c("ART_GRP_NO", "RETROS", "ICD")
+Perc_reticd_vol$Store<-9
+
+Perc_reticd<-rbind(Perc_reticd_kif, Perc_reticd_pal, Perc_reticd_the, 
+                   Perc_reticd_cre, Perc_reticd_pat, Perc_reticd_lar, 
+                   Perc_reticd_ion, Perc_reticd_xan, Perc_reticd_vol)
+rm(Perc_reticd_kif, Perc_reticd_pal, Perc_reticd_the, 
+   Perc_reticd_cre, Perc_reticd_pat, Perc_reticd_lar, 
+   Perc_reticd_ion, Perc_reticd_xan, Perc_reticd_vol)
+Perc_store<-cbind(Perc_2040, Perc_reticd)
+if (sum(Perc_store[,4] == Perc_store[,1])==max(dim(Perc_store))){
+Perc_store<- Perc_store[-c(4,7)]
+}
+rm(Perc_2040, Perc_reticd)
+# else print message
 # Aging
