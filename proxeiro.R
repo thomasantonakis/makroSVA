@@ -288,7 +288,6 @@ cu_disc=data.frame()
 for (i in 1:9){
 df_temp<-read.xlsx2("./Original/CustomerDisc_ALLFD&NF_Oct14.xls", sheetIndex=i ,colIndex=1:6, 
                     startRow = 4, header=F)
-print (dim(df_temp))
 df_temp$X1<-i
 cu_disc<-rbind(cu_disc,df_temp)
 df_temp<-0
@@ -296,8 +295,73 @@ gc()
 print (i)
 }
 gc()
-# names
+#names
+names(cu_disc)<- c("Store", "F_NF", "ART_NO", "DESCR", "DISC", "SALES")
+# fix class of data
+cu_disc$DISC<-as.numeric(as.character(cu_disc$DISC))
+cu_disc$SALES<-as.numeric(as.character(cu_disc$SALES))
 # drop unnecessary columns
+cu_disc$F_NF<-NULL
+cu_disc$DESCR<-NULL
 # calculate percentage
+cu_disc$DISC_pct<- (-cu_disc$DISC) / cu_disc$SALES
 # correct percentage
+cu_disc$DISC_pct[is.na(cu_disc$DISC_pct)] <- 0
+cu_disc$DISC_pct[cu_disc$DISC_pct>0] <- 0
+cu_disc$DISC_pct[cu_disc$DISC_pct< -0.8] <- 0
+gc()
 
+########################################
+#### Third Party Allocation
+########################################
+tp_alloc <- data.frame("STORE_NO" = 99, "ART_GRP_NO" = aging$ART_GRP_NO)
+tabnames<-c("Kif", "Pal", "The", "Cre", "Pat", "Lar", "TheII", "Xan", "Vol")
+# 99 based on Sales (?)
+for ( i in 1:length(tabnames)){
+        df_temp<- read.xlsx("./Original/Stat_Margin_0115.xls", sheetName=tabnames[i],
+                            colIndex=5, rowIndex=4:407, header=FALSE)
+        df_temp<-df_temp[-c(95),]
+        tp_alloc<- cbind(tp_alloc,df_temp)
+        df_temp<-0
+        gc()
+}
+tabnames_tp<-c("PROODOS", "MAKIOS", "FL_South")
+col_index<-1:9*7+10
+df_fin<-data.frame("STORE_NO" = c(rep(89,397),rep(95,397), rep(97,397)), "ART_GRP_NO" = aging$ART_GRP_NO)
+df_inter<-data.frame()
+for ( i in 1:length(tabnames_tp)){
+        df_temp<- read.xlsx("./Original/Store_98_97_96_0115.xls", sheetName=tabnames_tp[i],
+                            colIndex=col_index, rowIndex=4:407, header=FALSE, colClasses = rep("numeric", 9))
+        df_temp<-df_temp[-c(95:101),]
+        print (dim(df_temp))
+        df_inter<- rbind(df_inter,df_temp)
+        df_temp<-0
+        gc()
+}
+if (dim(df_inter)[1]==3*397-1){
+        df_inter<- rbind(df_inter[1:491,], 0, df_inter[492:dim(df_inter)[1],])
+}
+# dim(df_inter)
+df_fin<-cbind(df_fin,df_inter)
+names(df_fin)<-names(tp_alloc)
+tp_alloc<-rbind(tp_alloc, df_fin)
+rm(df_temp, df_inter, df_fin)
+names(tp_alloc)[3:11]<- c("stst1","stst2", "stst3", "stst4", "stst5", "stst6", "stst7", "stst8", "stst9")
+for (i in 1: dim(tp_alloc)[1]){
+        tp_alloc$sumstst[i]<- sum(tp_alloc[i,3:11])
+        if (tp_alloc$sumstst[i] ==0){
+                tp_alloc[i,13:21]<-0
+        } else {
+                for (j in 13:21){
+                        tp_alloc[i,j]<-tp_alloc[i,j-10]/tp_alloc[i,12]
+                }
+        }
+}
+names(tp_alloc)[13:21]<-c("pctst1","pctst2", "pctst3", "pctst4", "pctst5", "pctst6", "pctst7",
+                          "pctst8", "pctst9")
+gc()
+# write.xlsx(x = tp_alloc, file = "tp_alloc.xlsx",
+#            sheetName = "TestSheet", row.names = FALSE)
+
+# Finish  - Print Timer
+(proc.time() - ptm)/60
