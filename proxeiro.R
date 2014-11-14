@@ -3,6 +3,8 @@ setwd("D:/Data_Science/GitHub/makroSVA")
 # Set timer
 ####
 ptm <- proc.time()
+bsdate<-"31/10/2014"
+bsdate<-as.Date(bsdate, format = "%d/%m/%Y")
 # Read from MS Access Database
 library(RODBC)
 channel<- odbcConnectAccess("sva")
@@ -15,7 +17,7 @@ init_stock_check_stores<-ddply(stores_init,("STORE_NO"), summarize, STOCK_VALUE_
                                ,STOCK_VALUE_SELL_PR=sum(STOCK_VALUE_SELL_PR))
 # Extract the third parties stock per article
 third_parties_init<-sqlFetch(channel, "6000_Third_Parties")
-names(third_parties_init)
+names(third_parties_init)[11]<-"LAST_DELDAY_EX_CORR"
 # Table per Store for Stock NNBP checkng Later
 init_stock_check_TP<-ddply(third_parties_init,("STORE_NO"), summarize, STOCK_VALUE_MUV=sum(STOCK_VALUE_MUV)
                            ,STOCK_VALUE_SELL_PR=sum(STOCK_VALUE_SELL_PR))
@@ -37,6 +39,10 @@ rm(init_stock_check_stores,init_stock_check_TP,init_stock_check_99)
 # Close the channel with the MS Access Database
 odbcClose(channel)
 proc.time() - ptm
+
+# Calculate mmail columns
+mms<-ncol(stores_init)-13
+
 #Read the stores 10 and 11
 library(xlsx)
 gc()
@@ -54,6 +60,15 @@ store_10$STOCK_VALUE_SELL_PR<-as.numeric(store_10$STOCK_VALUE_SELL_PR)
 store_10$tot<- store_10$STOCK_VALUE_MUV+store_10$STOCK+store_10$STOCK_VALUE_SELL_PR 
 store_10<-store_10[store_10$tot!=0,]
 store_10$tot<-NULL
+store_10$STORE_NO<-1
+store_10$MUV<-store_10$STOCK_VALUE_MUV / store_10$STOCK
+store_10$SELL_PR<-store_10$STOCK_VALUE_SELL_PR / store_10$STOCK
+store_10$LAST_SALEDAY<-bsdate
+store_10$LAST_DELDAY<-bsdate
+store_10$LAST_DELDAY_EX_CORR<-bsdate
+store_10[,(ncol(store_10)+1):(ncol(store_10)+mms)]<-0
+names(store_10)[(ncol(store_10)+1-mms):(ncol(store_10))]<-names(stores_init)[11:(10+mms)]
+store_10<-store_10[,c(1,8,2,3,4,6,9,10,5,7,14,15,16,17,11,12,13)]
 gc()
 store_11<-read.xlsx2("./Original/files received/Stores_10_and_11.xlsx", sheetIndex=2
                      ,startRow = 10, header=FALSE,stringsAsFactors=FALSE)
@@ -67,6 +82,15 @@ store_11$tot<- store_11$STOCK_VALUE_MUV+store_11$STOCK+store_11$STOCK_VALUE_SELL
 store_11<-store_11[store_11$F_NF=="FOOD" |store_11$F_NF=="NON_FOOD" ,]
 store_11<-store_11[store_11$tot!=0,]
 store_11$tot<-NULL
+store_11$STORE_NO<-4
+store_11$MUV<-store_11$STOCK_VALUE_MUV / store_11$STOCK
+store_11$SELL_PR<-store_11$STOCK_VALUE_SELL_PR / store_11$STOCK
+store_11$LAST_SALEDAY<-bsdate
+store_11$LAST_DELDAY<-bsdate
+store_11$LAST_DELDAY_EX_CORR<-bsdate
+store_11[,(ncol(store_11)+1):(ncol(store_11)+mms)]<-0
+names(store_11)[(ncol(store_11)+1-mms):(ncol(store_11))]<-names(stores_init)[11:(10+mms)]
+store_11<-store_11[,c(1,8,2,3,4,6,9,10,5,7,14,15,16,17,11,12,13)]
 gc()
 init_stock_check_10<-data.frame("STORE_NO" = 10, "STOCK_VALUE_MUV" = sum(store_10$STOCK_VALUE_MUV) 
                                 ,STOCK_VALUE_SELL_PR=sum(store_10$STOCK_VALUE_SELL_PR))
@@ -129,10 +153,12 @@ officialstock$off_stock_muv<-c(do.call("cbind",officialstock$off_stock_muv))
 officialstock$check<-round(officialstock$received - officialstock$off_stock_muv, 2)
 gc()
 proc.time() - ptm
-#Breakdown the store_init DataFrame to 9 smaller Dataframes
 
-#Breakdown the third_parties_init DataFrame to 3 smaller Dataframes
+# Unify 9 stores with Kalamata and Chania
 
+stores_inter<-rbind(stores_init, store_10, store_11)
+stores_inter$tpmuv<-0
+stores_inter$tpsp<-0
 
 # COP_expenses
 cop<-read.xlsx("./Original/SVA2014_COP_Sep14.xls", sheetName="COP",
@@ -397,6 +423,7 @@ for (line in 1:nrow(third_parties_inter)){
         }
 }
 gc()
+third_parties_inter$LAST_SALEDAY<-NULL
 
 ## The same for 99 
 TP_99sell_pr_inter<-TP99_sell_pr
@@ -423,9 +450,40 @@ for (line in 1:nrow(TP_99sell_pr_inter)){
 }
 gc()
 
+TP_99sell_pr_inter$STORE_NO<-99
+TP_99sell_pr_inter$MUV<-TP_99sell_pr_inter$STOCK_VALUE_MUV /TP_99sell_pr_inter$STOCK
+TP_99sell_pr_inter$LAST_DELDAY_EX_CORR<-bsdate
+TP_99sell_pr_inter<-TP_99sell_pr_inter[,c(6,27,2,1,3,4,28, 7,5,8,29, 9:26)]
+names(TP_99sell_pr_inter)<-names(third_parties_inter)
+
+# Unify the 4 Warehouses
+
+total_tp_alloc<-rbind(third_parties_inter, TP_99sell_pr_inter)
+# rm(third_parties_inter, TP_99sell_pr_inter)
+#Fix total_tp_alloc to be row bindable with The stores Export
+
+total_tp_alloc[,(ncol(total_tp_alloc)+1):(ncol(total_tp_alloc)+mms)]<-0 #30:33
+names(total_tp_alloc)[(ncol(total_tp_alloc)+1-mms):(ncol(total_tp_alloc))]<-names(stores_init)[11:(10+mms)]
+total_tp_alloc[,(ncol(total_tp_alloc)+1):(ncol(total_tp_alloc)+2)]<-0 #34:35
+names(total_tp_alloc)[(ncol(total_tp_alloc)-1):(ncol(total_tp_alloc))]<-c("LAST_SALEDAY", "LAST_DELDAY")
+total_tp_alloc<-total_tp_alloc[,c(1:10,30:(30+mms-1),ncol(total_tp_alloc)-1,ncol(total_tp_alloc),11:29 )]
+
+# Create 9 data frames with articles from the warehouses
+
+# st1_alloc<- total_tp_alloc[, c(1:13)]
+# st2_alloc<- total_tp_alloc[, c(1:11,14:15)]
+# st3_alloc<- total_tp_alloc[, c(1:11,16:17)]
+# st4_alloc<- total_tp_alloc[, c(1:11,18:19)]
+# st5_alloc<- total_tp_alloc[, c(1:11,20:21)]
+# st6_alloc<- total_tp_alloc[, c(1:11,22:23)]
+# st7_alloc<- total_tp_alloc[, c(1:11,24:25)]
+# st8_alloc<- total_tp_alloc[, c(1:11,26:27)]
+# st9_alloc<- total_tp_alloc[, c(1:11,28:29)]
+
+
 # third_parties_inter$<-tp_alloc$pctst1[tp_alloc$STORE_NO == third_parties_inter$STORE_NO[1] & 
 #                         tp_alloc$ART_GRP_NO == third_parties_inter$ART_GRP_NO[1]]
-# write.xlsx(x = third_parties_inter, file = "tp_alloc.xlsx",
+# write.xlsx(x = TP99_sell_pr, file = "99.xlsx",
 #            sheetName = "TestSheet", row.names = FALSE)
 # Finish  - Print Timer
-(proc.time() - ptm)/60
+proc.time() - ptm
