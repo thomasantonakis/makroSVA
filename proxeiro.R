@@ -28,6 +28,7 @@ TP99_sell_pr<-merge(x = TP99_init, y = HO_prices,all.x = TRUE)
 TP99_sell_pr<-merge(x = TP99_init, y = HO_prices,all.x = TRUE, by.x = "ART_NO", by.y = "ART_NO")
 TP99_sell_pr<-TP99_sell_pr[,names(TP99_sell_pr) %in% c("F_NF", "ART_GRP_NO.x","ART_NO","SELL_PR", "DESCR.x", "STOCK", "STOCK_VALUE_MUV" )]
 TP99_sell_pr$STOCK_VALUE_SELL_PR<-TP99_sell_pr$SELL_PR * TP99_sell_pr$STOCK
+names(TP99_sell_pr)[2]<-"ART_GRP_NO"
 init_stock_check_99<-data.frame("STORE_NO" = 99, "STOCK_VALUE_MUV" = sum(TP99_sell_pr$STOCK_VALUE_MUV)
                                 ,STOCK_VALUE_SELL_PR=sum(TP99_sell_pr$STOCK_VALUE_SELL_PR))
 init_stock_check<-rbind(init_stock_check_stores, init_stock_check_TP, init_stock_check_99)
@@ -138,6 +139,7 @@ cop<-read.xlsx("./Original/SVA2014_COP_Sep14.xls", sheetName="COP",
                colIndex=1:20, rowIndex=42:43, header=FALSE)
 cop<-subset(cop, select=c(X1, X17))
 names(cop)<- c("F_NF", "COP%")
+levels(cop$F_NF)<-c("FOOD", "NON_FOOD")
 gc()
 
 # Selling Cost Expenses
@@ -145,6 +147,7 @@ sellcost<-read.xlsx("./Original/SVA2014_SellCost_Sep14.xls", sheetName="SC",
                colIndex=1:15, rowIndex=44:45, header=FALSE)
 sellcost<-subset(sellcost, select=c(X1, X11))
 names(sellcost)<- c("F_NF", "SellCost%")
+levels(sellcost$F_NF)<-c("FOOD", "NON_FOOD")
 gc()
 # Percentage Use
 #20.40 1-7, 11-12
@@ -263,6 +266,7 @@ Perc_store<-cbind(Perc_2040, Perc_reticd)
 if (sum(Perc_store[,4] == Perc_store[,1])==max(dim(Perc_store))){
 Perc_store<- Perc_store[-c(4,7)]
 }
+names(Perc_store)[3]<-"STORE_NO"
 rm(Perc_2040, Perc_reticd)
 proc.time() - ptm
 # else print message
@@ -296,7 +300,7 @@ print (i)
 }
 gc()
 #names
-names(cu_disc)<- c("Store", "F_NF", "ART_NO", "DESCR", "DISC", "SALES")
+names(cu_disc)<- c("STORE_NO", "F_NF", "ART_NO", "DESCR", "DISC", "SALES")
 # fix class of data
 cu_disc$DISC<-as.numeric(as.character(cu_disc$DISC))
 cu_disc$SALES<-as.numeric(as.character(cu_disc$SALES))
@@ -312,11 +316,11 @@ cu_disc$DISC_pct[cu_disc$DISC_pct< -0.8] <- 0
 gc()
 
 ########################################
-#### Third Party Allocation
+#### Third Party Allocation Step 1 - %
 ########################################
 tp_alloc <- data.frame("STORE_NO" = 99, "ART_GRP_NO" = aging$ART_GRP_NO)
 tabnames<-c("Kif", "Pal", "The", "Cre", "Pat", "Lar", "TheII", "Xan", "Vol")
-# 99 based on Sales (?)
+# 99 based on Sales 
 for ( i in 1:length(tabnames)){
         df_temp<- read.xlsx("./Original/Stat_Margin_0115.xls", sheetName=tabnames[i],
                             colIndex=5, rowIndex=4:407, header=FALSE)
@@ -325,6 +329,8 @@ for ( i in 1:length(tabnames)){
         df_temp<-0
         gc()
 }
+
+# 89 - 95 - 97 based on Stock
 tabnames_tp<-c("PROODOS", "MAKIOS", "FL_South")
 col_index<-1:9*7+10
 df_fin<-data.frame("STORE_NO" = c(rep(89,397),rep(95,397), rep(97,397)), "ART_GRP_NO" = aging$ART_GRP_NO)
@@ -340,6 +346,7 @@ for ( i in 1:length(tabnames_tp)){
 }
 if (dim(df_inter)[1]==3*397-1){
         df_inter<- rbind(df_inter[1:491,], 0, df_inter[492:dim(df_inter)[1],])
+        #df_inter[492,2]<-279
 }
 # dim(df_inter)
 df_fin<-cbind(df_fin,df_inter)
@@ -363,5 +370,62 @@ gc()
 # write.xlsx(x = tp_alloc, file = "tp_alloc.xlsx",
 #            sheetName = "TestSheet", row.names = FALSE)
 
+#######################################
+### Third Party Allocation Step 2 - %
+######################################
+
+third_parties_inter<-third_parties_init
+third_parties_inter[13:30]<-0
+names(third_parties_inter)[13:30]<-c("st1allocmuv", "st1allocsp",
+                                     "st2allocmuv", "st2allocsp",
+                                     "st3allocmuv", "st3allocsp",
+                                     "st4allocmuv", "st4allocsp",
+                                     "st5allocmuv", "st5allocsp",
+                                     "st6allocmuv", "st6allocsp",
+                                     "st7allocmuv", "st7allocsp",
+                                     "st8allocmuv", "st8allocsp",
+                                     "st9allocmuv", "st9allocsp")
+gc()
+for (line in 1:nrow(third_parties_inter)){
+        for (col in 1:9){
+                third_parties_inter[line, 2*(col-1)+13]<-third_parties_inter$STOCK_VALUE_MUV[line] * 
+                        tp_alloc[tp_alloc$STORE_NO == third_parties_inter$STORE_NO[line] &
+                                 tp_alloc$ART_GRP_NO == third_parties_inter$ART_GRP_NO[line],col+12]
+                third_parties_inter[line, 2*(col-1)+14]<-third_parties_inter$STOCK_VALUE_SELL_PR[line] * 
+                        tp_alloc[tp_alloc$STORE_NO == third_parties_inter$STORE_NO[line] &
+                                 tp_alloc$ART_GRP_NO == third_parties_inter$ART_GRP_NO[line],col+12]
+        }
+}
+gc()
+
+## The same for 99 
+TP_99sell_pr_inter<-TP99_sell_pr
+TP_99sell_pr_inter[9:26]<-0
+names(TP_99sell_pr_inter)[9:26]<-c("st1allocmuv", "st1allocsp",
+                                     "st2allocmuv", "st2allocsp",
+                                     "st3allocmuv", "st3allocsp",
+                                     "st4allocmuv", "st4allocsp",
+                                     "st5allocmuv", "st5allocsp",
+                                     "st6allocmuv", "st6allocsp",
+                                     "st7allocmuv", "st7allocsp",
+                                     "st8allocmuv", "st8allocsp",
+                                     "st9allocmuv", "st9allocsp")
+gc()
+for (line in 1:nrow(TP_99sell_pr_inter)){
+        for (col in 1:9){
+                TP_99sell_pr_inter[line, 2*(col-1)+9]<-TP_99sell_pr_inter$STOCK_VALUE_MUV[line] * 
+                        tp_alloc[tp_alloc$STORE_NO == 99 &
+                                         tp_alloc$ART_GRP_NO == TP_99sell_pr_inter$ART_GRP_NO[line],col+12]
+                TP_99sell_pr_inter[line, 2*(col-1)+10]<-TP_99sell_pr_inter$STOCK_VALUE_SELL_PR[line] * 
+                        tp_alloc[tp_alloc$STORE_NO == 99 &
+                                         tp_alloc$ART_GRP_NO == TP_99sell_pr_inter$ART_GRP_NO[line],col+12]
+        }
+}
+gc()
+
+# third_parties_inter$<-tp_alloc$pctst1[tp_alloc$STORE_NO == third_parties_inter$STORE_NO[1] & 
+#                         tp_alloc$ART_GRP_NO == third_parties_inter$ART_GRP_NO[1]]
+# write.xlsx(x = third_parties_inter, file = "tp_alloc.xlsx",
+#            sheetName = "TestSheet", row.names = FALSE)
 # Finish  - Print Timer
 (proc.time() - ptm)/60
