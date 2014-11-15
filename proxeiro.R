@@ -26,7 +26,6 @@ HO_prices<-sqlFetch(channel, "1000_HO_Articles")
 # Extract the Other TP stock per article
 TP99_init<-sqlFetch(channel, "99_oct14")
 names(TP99_init)<-c("ART_NO", "ART_GRP_NO", "Sub", "DESCR",  "STOCK", "STOCK_VALUE_MUV", "Buyer")
-TP99_sell_pr<-merge(x = TP99_init, y = HO_prices,all.x = TRUE)
 TP99_sell_pr<-merge(x = TP99_init, y = HO_prices,all.x = TRUE, by.x = "ART_NO", by.y = "ART_NO")
 TP99_sell_pr<-TP99_sell_pr[,names(TP99_sell_pr) %in% c("F_NF", "ART_GRP_NO.x","ART_NO","SELL_PR", "DESCR.x", "STOCK", "STOCK_VALUE_MUV" )]
 TP99_sell_pr$STOCK_VALUE_SELL_PR<-TP99_sell_pr$SELL_PR * TP99_sell_pr$STOCK
@@ -39,7 +38,7 @@ rm(init_stock_check_stores,init_stock_check_TP,init_stock_check_99)
 # Close the channel with the MS Access Database
 odbcClose(channel)
 proc.time() - ptm
-
+gc()
 # Calculate mmail columns
 mms<-ncol(stores_init)-13
 
@@ -69,6 +68,18 @@ store_10$LAST_DELDAY_EX_CORR<-bsdate
 store_10[,(ncol(store_10)+1):(ncol(store_10)+mms)]<-0
 names(store_10)[(ncol(store_10)+1-mms):(ncol(store_10))]<-names(stores_init)[11:(10+mms)]
 store_10<-store_10[,c(1,8,2,3,4,6,9,10,5,7,14,15,16,17,11,12,13)]
+
+for (row in 1: nrow(store_10) ){
+        for (col in c(11:(ncol(store_10)-2))){
+                if (length(stores_init[stores_init$STORE_NO == 1 &
+                                               stores_init$ART_NO == store_10$ART_NO[line],col])==0){
+                        store_10[row, col]
+                } else {
+                store_10[row, col]<-stores_init[stores_init$STORE_NO == 1 &
+                                                        stores_init$ART_NO == store_10$ART_NO[line],col]
+                }
+        }
+}
 gc()
 store_11<-read.xlsx2("./Original/files received/Stores_10_and_11.xlsx", sheetIndex=2
                      ,startRow = 10, header=FALSE,stringsAsFactors=FALSE)
@@ -149,9 +160,18 @@ officialstock$received[10]<-init_stock_check$STOCK_VALUE_MUV[init_stock_check$ST
 officialstock$received[11]<-init_stock_check$STOCK_VALUE_MUV[init_stock_check$STORE_NO==95]
 officialstock$received[12]<-init_stock_check$STOCK_VALUE_MUV[init_stock_check$STORE_NO==97]
 officialstock$received[13]<-init_stock_check$STOCK_VALUE_MUV[init_stock_check$STORE_NO==99]
+# Unlist officialstock$off_stock_muv
 officialstock$off_stock_muv<-c(do.call("cbind",officialstock$off_stock_muv)) 
 officialstock$check<-round(officialstock$received - officialstock$off_stock_muv, 2)
 gc()
+# 198 stock 
+stock_198<-ddply(stores_init[stores_init$ART_GRP_NO == 198,],("STORE_NO"), summarize, STOCK_VALUE_MUV=sum(STOCK_VALUE_MUV)
+                         ,STOCK_VALUE_SELL_PR=sum(STOCK_VALUE_SELL_PR))$STOCK_VALUE_MUV
+if (sum(officialstock$check) - sum(stock_198) <= 10){
+        print ("Stock in all stores reconciled with the official")
+} else {
+        print ("Something went wrong with the reconciliation of the official stock ")
+}
 proc.time() - ptm
 
 # Unify 9 stores with Kalamata and Chania
@@ -459,26 +479,38 @@ names(TP_99sell_pr_inter)<-names(third_parties_inter)
 # Unify the 4 Warehouses
 
 total_tp_alloc<-rbind(third_parties_inter, TP_99sell_pr_inter)
-# rm(third_parties_inter, TP_99sell_pr_inter)
+rm(third_parties_inter, TP_99sell_pr_inter)
 #Fix total_tp_alloc to be row bindable with The stores Export
 
-total_tp_alloc[,(ncol(total_tp_alloc)+1):(ncol(total_tp_alloc)+mms)]<-0 #30:33
+total_tp_alloc[,(ncol(total_tp_alloc)+1):(ncol(total_tp_alloc)+mms+2)]<-0 #30:35
 names(total_tp_alloc)[(ncol(total_tp_alloc)+1-mms):(ncol(total_tp_alloc))]<-names(stores_init)[11:(10+mms)]
-total_tp_alloc[,(ncol(total_tp_alloc)+1):(ncol(total_tp_alloc)+2)]<-0 #34:35
-names(total_tp_alloc)[(ncol(total_tp_alloc)-1):(ncol(total_tp_alloc))]<-c("LAST_SALEDAY", "LAST_DELDAY")
-total_tp_alloc<-total_tp_alloc[,c(1:10,30:(30+mms-1),ncol(total_tp_alloc)-1,ncol(total_tp_alloc),11:29 )]
+names(total_tp_alloc)[30:31]<-c("LAST_SALEDAY", "LAST_DELDAY")
+total_tp_alloc<-total_tp_alloc[,c(1:10,32:(ncol(total_tp_alloc)),30:31,11:29 )]
 
 # Create 9 data frames with articles from the warehouses
+st1_alloc<- total_tp_alloc[, c(1:19)]
+st2_alloc<- total_tp_alloc[, c(1:17,20:21)]
+st3_alloc<- total_tp_alloc[, c(1:17,22:23)]
+st4_alloc<- total_tp_alloc[, c(1:17,24:25)]
+st5_alloc<- total_tp_alloc[, c(1:17,26:27)]
+st6_alloc<- total_tp_alloc[, c(1:17,28:29)]
+st7_alloc<- total_tp_alloc[, c(1:17,30:31)]
+st8_alloc<- total_tp_alloc[, c(1:17,32:33)]
+st9_alloc<- total_tp_alloc[, c(1:17,34:35)]
 
-# st1_alloc<- total_tp_alloc[, c(1:13)]
-# st2_alloc<- total_tp_alloc[, c(1:11,14:15)]
-# st3_alloc<- total_tp_alloc[, c(1:11,16:17)]
-# st4_alloc<- total_tp_alloc[, c(1:11,18:19)]
-# st5_alloc<- total_tp_alloc[, c(1:11,20:21)]
-# st6_alloc<- total_tp_alloc[, c(1:11,22:23)]
-# st7_alloc<- total_tp_alloc[, c(1:11,24:25)]
-# st8_alloc<- total_tp_alloc[, c(1:11,26:27)]
-# st9_alloc<- total_tp_alloc[, c(1:11,28:29)]
+# Optional, Clear out articles with 0 stock and thus useless row
+
+# Make per-store-tp allcoations bindable with stores_inter
+names(st1_alloc)[18:19] <-c("tpmuv","tpsp")
+names(st2_alloc)[18:19] <-c("tpmuv","tpsp")
+names(st3_alloc)[18:19] <-c("tpmuv","tpsp")
+names(st4_alloc)[18:19] <-c("tpmuv","tpsp")
+names(st5_alloc)[18:19] <-c("tpmuv","tpsp")
+names(st6_alloc)[18:19] <-c("tpmuv","tpsp")
+names(st7_alloc)[18:19] <-c("tpmuv","tpsp")
+names(st8_alloc)[18:19] <-c("tpmuv","tpsp")
+names(st9_alloc)[18:19] <-c("tpmuv","tpsp")
+
 
 
 # third_parties_inter$<-tp_alloc$pctst1[tp_alloc$STORE_NO == third_parties_inter$STORE_NO[1] & 
