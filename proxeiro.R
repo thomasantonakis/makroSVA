@@ -65,21 +65,19 @@ store_10$SELL_PR<-store_10$STOCK_VALUE_SELL_PR / store_10$STOCK
 store_10$LAST_SALEDAY<-bsdate
 store_10$LAST_DELDAY<-bsdate
 store_10$LAST_DELDAY_EX_CORR<-bsdate
-store_10[,(ncol(store_10)+1):(ncol(store_10)+mms)]<-0
+store_10[,(ncol(store_10)+1):(ncol(store_10)+mms)]<-NA
 names(store_10)[(ncol(store_10)+1-mms):(ncol(store_10))]<-names(stores_init)[11:(10+mms)]
 store_10<-store_10[,c(1,8,2,3,4,6,9,10,5,7,14,15,16,17,11,12,13)]
 
-for (row in 1: nrow(store_10) ){
-        for (col in c(11:(ncol(store_10)-2))){
-                if (length(stores_init[stores_init$STORE_NO == 1 &
-                                               stores_init$ART_NO == store_10$ART_NO[line],col])==0){
-                        store_10[row, col]
-                } else {
-                store_10[row, col]<-stores_init[stores_init$STORE_NO == 1 &
-                                                        stores_init$ART_NO == store_10$ART_NO[line],col]
-                }
-        }
-}
+# for (row in 1: nrow(store_10) ){
+#         if (length(stores_init[stores_init$STORE_NO == 1 &
+#                                        stores_init$ART_NO == store_10$ART_NO[line],col])!=0){
+#                 temp<- 
+#                 store_10[row, col]<-stores_init[stores_init$STORE_NO == 1 &
+#                                                         stores_init$ART_NO == store_10$ART_NO[line],col]
+#         }
+# }
+        
 gc()
 store_11<-read.xlsx2("./Original/files received/Stores_10_and_11.xlsx", sheetIndex=2
                      ,startRow = 10, header=FALSE,stringsAsFactors=FALSE)
@@ -515,7 +513,7 @@ names(st9_alloc)[18:19] <-c("tpmuv","tpsp")
 
 # third_parties_inter$<-tp_alloc$pctst1[tp_alloc$STORE_NO == third_parties_inter$STORE_NO[1] & 
 #                         tp_alloc$ART_GRP_NO == third_parties_inter$ART_GRP_NO[1]]
-# write.xlsx(x = TP99_sell_pr, file = "99.xlsx",
+# write.xlsx(x = store_10, file = "10.xlsx",
 #            sheetName = "TestSheet", row.names = FALSE)
 # Finish  - Print Timer
 proc.time() - ptm
