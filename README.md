@@ -42,14 +42,14 @@ In the working directory, there has to be another folder named `Input`, where th
 1. Third Party Allocation (Step 3 of 3) Connect to stores
 1. Check with Bperf
 1. Clean Up
+1. Calculating Step 1 - ICD's
+1. Calculating Step 2 - Supplier Discounts
+1. Calculating Step 3 - OCOP
+1. Calculating Step 4 - Customer Discounts
 1. ReUnite the Finals?
-1. Calculating Step 1 - Promo Effect
-1. Calculating Step 2 - Aging % and Effect
-1. Calculating Step 3 - ICD's
-1. Calculating Step 4 - Supplier Discounts
-1. Calculating Step 5 - OCOP
-1. Calculating Step 6 - Personnel Expenses
-1. Calculating Step 7 - Customer Discounts
+1. Calculating Step 5 - Promo Effect
+1. Calculating Step 6 - Aging % and Effect
+1. Calculating Step 7 - Personnel Expenses
 1. Calculating Step 8 - Sellouts
 1. Calculating Step 9 - Selling Costs
 1. Calculating Step 10 - COP / NRV / Stock Depreciation

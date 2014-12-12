@@ -357,6 +357,7 @@ cu_disc$DISC_pct<- (-cu_disc$DISC) / cu_disc$SALES
 cu_disc$DISC_pct[is.na(cu_disc$DISC_pct)] <- 0
 cu_disc$DISC_pct[cu_disc$DISC_pct>0] <- 0
 cu_disc$DISC_pct[cu_disc$DISC_pct< -0.8] <- 0
+cu_disc$ART_NO<-as.character(cu_disc$ART_NO)
 gc()
 proc.time() - ptm
 ########################################
@@ -830,38 +831,219 @@ rm(channel, col,  col_index, HO_prices, i, j, line, position, st1_alloc, st1_int
    store_10, store_11, stores_init, stores_inter, third_parties_init, total_tp_alloc, 
    tp_alloc, TP99_init, TP99_sell_pr)
 
+
+##############################################################################
+### Calculating Step 1 - ICD's
+##############################################################################
+
+##############################################################################
+### Calculating Step 2 - Supplier Discounts
+##############################################################################
+
+##############################################################################
+### Calculating Step 3 - OCOP
+##############################################################################
+temp_search<- Perc_store[Perc_store$STORE_NO == 1,]
+st1_final$OPC<-0
+st1_final$RETROS<-0
+st1_final$ICD<-0
+for (line in 1:nrow(temp_search)){
+        st1_final$OPC[st1_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$OPC[line]
+        st1_final$RETROS[st1_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$RETROS[line]
+        st1_final$ICD[st1_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$ICD[line] 
+}
+proc.time() - ptm
+
+temp_search<- Perc_store[Perc_store$STORE_NO == 2,]
+st2_final$OPC<-0
+st2_final$RETROS<-0
+st2_final$ICD<-0
+for (line in 1:nrow(temp_search)){
+        st2_final$OPC[st2_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$OPC[line]
+        st2_final$RETROS[st2_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$RETROS[line]
+        st2_final$ICD[st2_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$ICD[line] 
+}
+proc.time() - ptm
+
+temp_search<- Perc_store[Perc_store$STORE_NO == 3,]
+st3_final$OPC<-0
+st3_final$RETROS<-0
+st3_final$ICD<-0
+for (line in 1:nrow(temp_search)){
+        st3_final$OPC[st3_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$OPC[line]
+        st3_final$RETROS[st3_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$RETROS[line]
+        st3_final$ICD[st3_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$ICD[line] 
+}
+proc.time() - ptm
+
+temp_search<- Perc_store[Perc_store$STORE_NO == 4,]
+st4_final$OPC<-0
+st4_final$RETROS<-0
+st4_final$ICD<-0
+for (line in 1:nrow(temp_search)){
+        st4_final$OPC[st4_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$OPC[line]
+        st4_final$RETROS[st4_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$RETROS[line]
+        st4_final$ICD[st4_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$ICD[line] 
+}
+proc.time() - ptm
+
+temp_search<- Perc_store[Perc_store$STORE_NO == 5,]
+st5_final$OPC<-0
+st5_final$RETROS<-0
+st5_final$ICD<-0
+for (line in 1:nrow(temp_search)){
+        st5_final$OPC[st5_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$OPC[line]
+        st5_final$RETROS[st5_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$RETROS[line]
+        st5_final$ICD[st5_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$ICD[line] 
+}
+proc.time() - ptm
+
+temp_search<- Perc_store[Perc_store$STORE_NO == 6,]
+st6_final$OPC<-0
+st6_final$RETROS<-0
+st6_final$ICD<-0
+for (line in 1:nrow(temp_search)){
+        st6_final$OPC[st6_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$OPC[line]
+        st6_final$RETROS[st6_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$RETROS[line]
+        st6_final$ICD[st6_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$ICD[line] 
+}
+proc.time() - ptm
+
+temp_search<- Perc_store[Perc_store$STORE_NO == 7,]
+st7_final$OPC<-0
+st7_final$RETROS<-0
+st7_final$ICD<-0
+for (line in 1:nrow(temp_search)){
+        st7_final$OPC[st7_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$OPC[line]
+        st7_final$RETROS[st7_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$RETROS[line]
+        st7_final$ICD[st7_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$ICD[line] 
+}
+proc.time() - ptm
+
+temp_search<- Perc_store[Perc_store$STORE_NO == 8,]
+st8_final$OPC<-0
+st8_final$RETROS<-0
+st8_final$ICD<-0
+for (line in 1:nrow(temp_search)){
+        st8_final$OPC[st8_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$OPC[line]
+        st8_final$RETROS[st8_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$RETROS[line]
+        st8_final$ICD[st8_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$ICD[line] 
+}
+proc.time() - ptm
+
+temp_search<- Perc_store[Perc_store$STORE_NO == 9,]
+st9_final$OPC<-0
+st9_final$RETROS<-0
+st9_final$ICD<-0
+for (line in 1:nrow(temp_search)){
+        st9_final$OPC[st9_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$OPC[line]
+        st9_final$RETROS[st9_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$RETROS[line]
+        st9_final$ICD[st9_final$ART_GRP_NO == temp_search$ART_GRP_NO[line]]<-temp_search$ICD[line] 
+}
+proc.time() - ptm
+rm(temp_search)
+
+##############################################################################
+### Calculating Step 4 - Customer Discounts
+##############################################################################
+temp_search<- cu_disc[cu_disc$STORE_NO == 1,]
+st1_final$CUDISC<-0
+for (line in 1:nrow(st1_final)){
+        if (sum(st1_final$ART_NO[line] ==temp_search$ART_NO)!=0){
+                st1_final$CUDISC[line]<-temp_search$DISC_pct[st1_final$ART_NO[line] ==temp_search$ART_NO ]
+        }
+}
+proc.time() - ptm
+
+temp_search<- cu_disc[cu_disc$STORE_NO == 2,]
+st2_final$CUDISC<-0
+for (line in 1:nrow(st2_final)){
+        if (sum(st2_final$ART_NO[line] ==temp_search$ART_NO)!=0){
+                st2_final$CUDISC[line]<-temp_search$DISC_pct[st2_final$ART_NO[line] ==temp_search$ART_NO ]
+        }
+}
+proc.time() - ptm
+
+temp_search<- cu_disc[cu_disc$STORE_NO == 3,]
+st3_final$CUDISC<-0
+for (line in 1:nrow(st3_final)){
+        if (sum(st3_final$ART_NO[line] ==temp_search$ART_NO)!=0){
+                st3_final$CUDISC[line]<-temp_search$DISC_pct[st3_final$ART_NO[line] ==temp_search$ART_NO ]
+        }
+}
+proc.time() - ptm
+
+temp_search<- cu_disc[cu_disc$STORE_NO == 4,]
+st4_final$CUDISC<-0
+for (line in 1:nrow(st4_final)){
+        if (sum(st4_final$ART_NO[line] ==temp_search$ART_NO)!=0){
+                st4_final$CUDISC[line]<-temp_search$DISC_pct[st4_final$ART_NO[line] ==temp_search$ART_NO ]
+        }
+}
+proc.time() - ptm
+
+temp_search<- cu_disc[cu_disc$STORE_NO == 5,]
+st5_final$CUDISC<-0
+for (line in 1:nrow(st5_final)){
+        if (sum(st5_final$ART_NO[line] ==temp_search$ART_NO)!=0){
+                st5_final$CUDISC[line]<-temp_search$DISC_pct[st5_final$ART_NO[line] ==temp_search$ART_NO ]
+        }
+}
+proc.time() - ptm
+
+temp_search<- cu_disc[cu_disc$STORE_NO == 6,]
+st6_final$CUDISC<-0
+for (line in 1:nrow(st6_final)){
+        if (sum(st6_final$ART_NO[line] ==temp_search$ART_NO)!=0){
+                st6_final$CUDISC[line]<-temp_search$DISC_pct[st6_final$ART_NO[line] ==temp_search$ART_NO ]
+        }
+}
+proc.time() - ptm
+
+temp_search<- cu_disc[cu_disc$STORE_NO == 7,]
+st7_final$CUDISC<-0
+for (line in 1:nrow(st7_final)){
+        if (sum(st7_final$ART_NO[line] ==temp_search$ART_NO)!=0){
+                st7_final$CUDISC[line]<-temp_search$DISC_pct[st7_final$ART_NO[line] ==temp_search$ART_NO ]
+        }
+}
+proc.time() - ptm
+
+temp_search<- cu_disc[cu_disc$STORE_NO == 8,]
+st8_final$CUDISC<-0
+for (line in 1:nrow(st8_final)){
+        if (sum(st8_final$ART_NO[line] ==temp_search$ART_NO)!=0){
+                st8_final$CUDISC[line]<-temp_search$DISC_pct[st8_final$ART_NO[line] ==temp_search$ART_NO ]
+        }
+}
+proc.time() - ptm
+
+temp_search<- cu_disc[cu_disc$STORE_NO == 9,]
+st9_final$CUDISC<-0
+for (line in 1:nrow(st9_final)){
+        if (sum(st9_final$ART_NO[line] ==temp_search$ART_NO)!=0){
+        st9_final$CUDISC[line]<-temp_search$DISC_pct[st9_final$ART_NO[line] ==temp_search$ART_NO ]
+        }
+}
+proc.time() - ptm
+rm(temp_search)
 ##############################################################################
 ### ReUnite the Finals?
 ##############################################################################
 
+
 ##############################################################################
-### Calculating Step 1 - Promo Effect
+### Calculating Step 5 - Promo Effect
 ##############################################################################
 
 ##############################################################################
-### Calculating Step 2 - Aging % and Effect
+### Calculating Step 6 - Aging % and Effect
 ##############################################################################
 
 # Indicate the days of aging, the class aging and the aging factor
 
 ##############################################################################
-### Calculating Step 3 - ICD's
-##############################################################################
-
-##############################################################################
-### Calculating Step 4 - Supplier Discounts
-##############################################################################
-
-##############################################################################
-### Calculating Step 5 - OCOP
-##############################################################################
-
-##############################################################################
-### Calculating Step 6 - Personnel Expenses
-##############################################################################
-
-##############################################################################
-### Calculating Step 7 - Customer Discounts
+### Calculating Step 7 - Personnel Expenses
 ##############################################################################
 
 ##############################################################################
