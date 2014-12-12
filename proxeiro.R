@@ -175,8 +175,6 @@ proc.time() - ptm
 # Unify 9 stores with Kalamata and Chania
 
 stores_inter<-rbind(stores_init, store_10, store_11)
-#stores_inter$tpmuv<-0
-#stores_inter$tpsp<-0
 
 # COP_expenses
 cop<-read.xlsx("./Original/SVA2014_COP_Sep14.xls", sheetName="COP",
@@ -1027,32 +1025,94 @@ for (line in 1:nrow(st9_final)){
 }
 proc.time() - ptm
 rm(temp_search)
+gc()
 ##############################################################################
 ### ReUnite the Finals?
 ##############################################################################
-
-
-##############################################################################
-### Calculating Step 5 - Promo Effect
-##############################################################################
-
-##############################################################################
-### Calculating Step 6 - Aging % and Effect
-##############################################################################
-
-# Indicate the days of aging, the class aging and the aging factor
-
-##############################################################################
-### Calculating Step 7 - Personnel Expenses
-##############################################################################
-
-##############################################################################
-### Calculating Step 8 - Sellouts
-##############################################################################
+st1_final$STORE_REAL<-1
+st2_final$STORE_REAL<-2
+st3_final$STORE_REAL<-3
+st4_final$STORE_REAL<-4
+st5_final$STORE_REAL<-5
+st6_final$STORE_REAL<-6
+st7_final$STORE_REAL<-7
+st8_final$STORE_REAL<-8
+st9_final$STORE_REAL<-9
+all_stores_final<-rbind(st1_final, st2_final, st3_final, 
+                        st4_final, st5_final, st6_final, 
+                        st7_final, st8_final, st9_final)
+rm(st1_final, st2_final, st3_final, 
+      st4_final, st5_final, st6_final, 
+      st7_final, st8_final, st9_final)
+rm(Perc_store, cu_disc)
+gc()
 
 ##############################################################################
-### Calculating Step 9 - Selling Costs
+### Calculating Step 5 - Personnel Expenses
 ##############################################################################
+all_stores_final$PersCop<-0
+all_stores_final$PersCop[all_stores_final$F_NF == "FOOD"]<-cop[1,2]
+all_stores_final$PersCop[all_stores_final$F_NF != "FOOD"]<-cop[2,2]
+
+##############################################################################
+### Calculating Step 6 - Selling Costs
+##############################################################################
+all_stores_final$SellCost<-0
+all_stores_final$SellCost[all_stores_final$F_NF == "FOOD"]<-sellcost[1,2]
+all_stores_final$SellCost[all_stores_final$F_NF != "FOOD"]<-sellcost[2,2]
+
+##############################################################################
+### Calculating Step 7 - Sellouts
+##############################################################################
+all_stores_final$SO_pct<-0
+for (line in 1:nrow(so_grp)){
+        all_stores_final$SO_pct[all_stores_final$ART_GRP_NO == so_grp$ART_GRP_NO[line]]<-so_grp$SO_pct[line]
+}
+proc.time() - ptm
+
+##############################################################################
+### Calculating Step 8 - Aging % and Effect
+##############################################################################
+
+## Indicate the days of aging, the class aging and find the aging factor
+
+# Find aging in days
+# Calculate Last_Last_Del_Day
+all_stores_final$lldd<-all_stores_final$LAST_DELDAY_EX_CORR
+all_stores_final$lldd[is.na(all_stores_final$lldd)]<-all_stores_final$LAST_DELDAY[is.na(all_stores_final$lldd)]
+all_stores_final$lldd[is.na(all_stores_final$lldd)]<-as.POSIXct(bsdate)
+all_stores_final$lldd[all_stores_final$lldd == 0]<-as.POSIXct(bsdate)
+# Calculate aging in days
+all_stores_final$aging_days<- round(as.numeric(as.difftime(as.POSIXct(bsdate)-all_stores_final$lldd, units = "days"))/60/60/24, 0)
+# Calculate aging cluster
+all_stores_final$aging_cluster<-0
+all_stores_final$aging_cluster[all_stores_final$aging_days>30 & all_stores_final$aging_days<=90]<-1
+all_stores_final$aging_cluster[all_stores_final$aging_days>90 & all_stores_final$aging_days<=180]<-2
+all_stores_final$aging_cluster[all_stores_final$aging_days>180 & all_stores_final$aging_days<=365]<-3
+all_stores_final$aging_cluster[all_stores_final$aging_days>365 & all_stores_final$aging_days<=730]<-4
+all_stores_final$aging_cluster[all_stores_final$aging_days>730]<-5
+# Calculate aging Factor
+all_stores_final$aging_factor<-0
+for (i in 1:5){
+        for (j in 1:nrow(aging)){
+                all_stores_final$aging_factor[all_stores_final$aging_cluster ==i &
+                                                      all_stores_final$ART_GRP_NO ==aging$ART_GRP_NO[j]     ]<-aging[j,i+3]
+        }
+}
+rm(i,j)
+
+##############################################################################
+### Calculating Step 9 - Promo Effect
+##############################################################################
+all_stores_final$promo_price<-NA
+i=1
+while (i<=mms) {
+        all_stores_final$promo_price[is.na(all_stores_final$promo_price)]<-all_stores_final[is.na(all_stores_final$promo_price), 10+i]
+        i=i+1
+}
+all_stores_final$promo_price<-all_stores_final$promo_price*all_stores_final$STOCK
+all_stores_final$promo_price[is.na(all_stores_final$promo_price)]=all_stores_final$STOCK_VALUE_SELL_PR[is.na(all_stores_final$promo_price)]
+all_stores_final$promo_price=all_stores_final$promo_price+ all_stores_final$tpsp
 
 ##############################################################################
 ### Calculating Step 10 - COP / NRV / Stock Depreciation
