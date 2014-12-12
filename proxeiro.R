@@ -18,7 +18,7 @@ init_stock_check_stores<-ddply(stores_init,("STORE_NO"), summarize, STOCK_VALUE_
 # Extract the third parties stock per article
 third_parties_init<-sqlFetch(channel, "6000_Third_Parties")
 names(third_parties_init)[11]<-"LAST_DELDAY_EX_CORR"
-# Table per Store for Stock NNBP checkng Later
+# Table per Store for Stock NNBP checking Later
 init_stock_check_TP<-ddply(third_parties_init,("STORE_NO"), summarize, STOCK_VALUE_MUV=sum(STOCK_VALUE_MUV)
                            ,STOCK_VALUE_SELL_PR=sum(STOCK_VALUE_SELL_PR))
 # Extract the HO prices fot the 99 WH
@@ -175,8 +175,8 @@ proc.time() - ptm
 # Unify 9 stores with Kalamata and Chania
 
 stores_inter<-rbind(stores_init, store_10, store_11)
-stores_inter$tpmuv<-0
-stores_inter$tpsp<-0
+#stores_inter$tpmuv<-0
+#stores_inter$tpsp<-0
 
 # COP_expenses
 cop<-read.xlsx("./Original/SVA2014_COP_Sep14.xls", sheetName="COP",
@@ -470,7 +470,7 @@ gc()
 
 TP_99sell_pr_inter$STORE_NO<-99
 TP_99sell_pr_inter$MUV<-TP_99sell_pr_inter$STOCK_VALUE_MUV /TP_99sell_pr_inter$STOCK
-TP_99sell_pr_inter$LAST_DELDAY_EX_CORR<-bsdate
+TP_99sell_pr_inter$LAST_DELDAY_EX_CORR<-as.POSIXct(bsdate)
 TP_99sell_pr_inter<-TP_99sell_pr_inter[,c(6,27,2,1,3,4,28, 7,5,8,29, 9:26)]
 names(TP_99sell_pr_inter)<-names(third_parties_inter)
 
@@ -478,12 +478,26 @@ names(TP_99sell_pr_inter)<-names(third_parties_inter)
 
 total_tp_alloc<-rbind(third_parties_inter, TP_99sell_pr_inter)
 rm(third_parties_inter, TP_99sell_pr_inter)
+class(total_tp_alloc$LAST_DELDAY)<-class(total_tp_alloc$LAST_DELDAY_EX_CORR)
+class(total_tp_alloc$LAST_SALEDAY)<-class(total_tp_alloc$LAST_DELDAY_EX_CORR)
 #Fix total_tp_alloc to be row bindable with The stores Export
 
 total_tp_alloc[,(ncol(total_tp_alloc)+1):(ncol(total_tp_alloc)+mms+2)]<-0 #30:35
 names(total_tp_alloc)[(ncol(total_tp_alloc)+1-mms):(ncol(total_tp_alloc))]<-names(stores_init)[11:(10+mms)]
 names(total_tp_alloc)[30:31]<-c("LAST_SALEDAY", "LAST_DELDAY")
 total_tp_alloc<-total_tp_alloc[,c(1:10,32:(ncol(total_tp_alloc)),30:31,11:29 )]
+
+# Delete the artices with zero stock inmyv and selling price
+total_tp_alloc$tot<- total_tp_alloc$STOCK_VALUE_MUV+total_tp_alloc$STOCK+total_tp_alloc$STOCK_VALUE_SELL_PR 
+total_tp_alloc<-total_tp_alloc[total_tp_alloc$tot!=0,]
+total_tp_alloc$tot<-NULL
+
+# Turn Qty, MUV price, Selling Price to zero
+total_tp_alloc$STOCK<-0
+total_tp_alloc$MUV<-0
+total_tp_alloc$SELL_PR<-0
+total_tp_alloc$STOCK_VALUE_MUV<-0
+total_tp_alloc$STOCK_VALUE_SELL_PR<-0
 
 # Create 9 data frames with articles from the warehouses
 st1_alloc<- total_tp_alloc[, c(1:19)]
@@ -496,7 +510,7 @@ st7_alloc<- total_tp_alloc[, c(1:17,30:31)]
 st8_alloc<- total_tp_alloc[, c(1:17,32:33)]
 st9_alloc<- total_tp_alloc[, c(1:17,34:35)]
 
-# Optional, Clear out articles with 0 stock and thus useless row
+
 
 # Make per-store-tp allcoations bindable with stores_inter
 names(st1_alloc)[18:19] <-c("tpmuv","tpsp")
@@ -509,11 +523,338 @@ names(st7_alloc)[18:19] <-c("tpmuv","tpsp")
 names(st8_alloc)[18:19] <-c("tpmuv","tpsp")
 names(st9_alloc)[18:19] <-c("tpmuv","tpsp")
 
+# Optional, Clear out articles with 0 stock and thus useless row
+# Delete the artices with zero stock in muv and selling price
+st1_alloc$tot<- st1_alloc$tpmuv+st1_alloc$tpsp
+st1_alloc<-st1_alloc[abs(st1_alloc$tot)>=0.01,]
+st1_alloc$tot<-NULL
 
+st2_alloc$tot<- st2_alloc$tpmuv+st2_alloc$tpsp
+st2_alloc<-st2_alloc[abs(st2_alloc$tot)>=0.01,]
+st2_alloc$tot<-NULL
+
+st3_alloc$tot<- st3_alloc$tpmuv+st3_alloc$tpsp
+st3_alloc<-st3_alloc[abs(st3_alloc$tot)>=0.01,]
+st3_alloc$tot<-NULL
+
+st4_alloc$tot<- st4_alloc$tpmuv+st4_alloc$tpsp
+st4_alloc<-st4_alloc[abs(st4_alloc$tot)>=0.01,]
+st4_alloc$tot<-NULL
+
+st5_alloc$tot<- st5_alloc$tpmuv+st5_alloc$tpsp
+st5_alloc<-st5_alloc[abs(st5_alloc$tot)>=0.01,]
+st5_alloc$tot<-NULL
+
+st6_alloc$tot<- st6_alloc$tpmuv+st6_alloc$tpsp
+st6_alloc<-st6_alloc[abs(st6_alloc$tot)>=0.01,]
+st6_alloc$tot<-NULL
+
+st7_alloc$tot<- st7_alloc$tpmuv+st7_alloc$tpsp
+st7_alloc<-st7_alloc[abs(st7_alloc$tot)>=0.01,]
+st7_alloc$tot<-NULL
+
+st8_alloc$tot<- st8_alloc$tpmuv+st8_alloc$tpsp
+st8_alloc<-st8_alloc[abs(st8_alloc$tot)>=0.01,]
+st8_alloc$tot<-NULL
+
+st9_alloc$tot<- st9_alloc$tpmuv+st9_alloc$tpsp
+st9_alloc<-st9_alloc[abs(st9_alloc$tot)>=0.01,]
+st9_alloc$tot<-NULL
+
+##############################################################################
+### Third Party Allocation Step 3 - Combining with The stores
+##############################################################################
+
+# Store 1
+st1_inter = stores_inter[stores_inter$STORE_NO == 1,]
+st1_final = st1_inter
+st1_final$tpmuv<-0
+st1_final$tpsp<-0
+for (line in 1:nrow(st1_alloc)) {
+        if (sum(st1_alloc$ART_NO[line] == st1_final$ART_NO)) {
+                position = (st1_alloc$ART_NO[line] == st1_final$ART_NO)
+                #Check if tp has already been allocated
+                if (st1_final$tpmuv [position]==0){
+                        st1_final$tpmuv[position]<-st1_alloc$tpmuv[line]
+                        st1_final$tpsp[position]<-st1_alloc$tpsp[line]
+                }
+                else {
+                        st1_final$tpmuv[position]<-st1_final$tpmuv[position]+st1_alloc$tpmuv[line]
+                        st1_final$tpsp[position]<-st1_final$tpsp[position]+st1_alloc$tpsp[line]
+                }
+        }
+        else {
+                st1_final<- rbind(st1_final, st1_alloc[line,])
+        }
+}
+gc()
+
+# Store 2
+st2_inter = stores_inter[stores_inter$STORE_NO == 2,]
+st2_final = st2_inter
+st2_final$tpmuv<-0
+st2_final$tpsp<-0
+for (line in 1:nrow(st2_alloc)) {
+        if (sum(st2_alloc$ART_NO[line] == st2_final$ART_NO)) {
+                position = (st2_alloc$ART_NO[line] == st2_final$ART_NO)
+                #Check if tp has already been allocated
+                if (st2_final$tpmuv [position]==0){
+                        st2_final$tpmuv[position]<-st2_alloc$tpmuv[line]
+                        st2_final$tpsp[position]<-st2_alloc$tpsp[line]
+                }
+                else {
+                        st2_final$tpmuv[position]<-st2_final$tpmuv[position]+st2_alloc$tpmuv[line]
+                        st2_final$tpsp[position]<-st2_final$tpsp[position]+st2_alloc$tpsp[line]
+                }
+        }
+        else {
+                st2_final<- rbind(st2_final, st2_alloc[line,])
+        }
+}
+gc()
+
+# Store 3
+st3_inter = stores_inter[stores_inter$STORE_NO == 3,]
+st3_final = st3_inter
+st3_final$tpmuv<-0
+st3_final$tpsp<-0
+for (line in 1:nrow(st3_alloc)) {
+        if (sum(st3_alloc$ART_NO[line] == st3_final$ART_NO)) {
+                position = (st3_alloc$ART_NO[line] == st3_final$ART_NO)
+                #Check if tp has already been allocated
+                if (st3_final$tpmuv [position]==0){
+                        st3_final$tpmuv[position]<-st3_alloc$tpmuv[line]
+                        st3_final$tpsp[position]<-st3_alloc$tpsp[line]
+                }
+                else {
+                        st3_final$tpmuv[position]<-st3_final$tpmuv[position]+st3_alloc$tpmuv[line]
+                        st3_final$tpsp[position]<-st3_final$tpsp[position]+st3_alloc$tpsp[line]
+                }
+        }
+        else {
+                st3_final<- rbind(st3_final, st3_alloc[line,])
+        }
+}
+gc()
+
+# Store 4
+st4_inter = stores_inter[stores_inter$STORE_NO == 4,]
+st4_final = st4_inter
+st4_final$tpmuv<-0
+st4_final$tpsp<-0
+for (line in 1:nrow(st4_alloc)) {
+        if (sum(st4_alloc$ART_NO[line] == st4_final$ART_NO)) {
+                position = (st4_alloc$ART_NO[line] == st4_final$ART_NO)
+                #Check if tp has already been allocated
+                if (st4_final$tpmuv [position]==0){
+                        st4_final$tpmuv[position]<-st4_alloc$tpmuv[line]
+                        st4_final$tpsp[position]<-st4_alloc$tpsp[line]
+                }
+                else {
+                        st4_final$tpmuv[position]<-st4_final$tpmuv[position]+st4_alloc$tpmuv[line]
+                        st4_final$tpsp[position]<-st4_final$tpsp[position]+st4_alloc$tpsp[line]
+                }
+        }
+        else {
+                st4_final<- rbind(st4_final, st4_alloc[line,])
+        }
+}
+gc()
+
+# Store 5
+st5_inter = stores_inter[stores_inter$STORE_NO == 5,]
+st5_final = st5_inter
+st5_final$tpmuv<-0
+st5_final$tpsp<-0
+for (line in 1:nrow(st5_alloc)) {
+        if (sum(st5_alloc$ART_NO[line] == st5_final$ART_NO)) {
+                position = (st5_alloc$ART_NO[line] == st5_final$ART_NO)
+                #Check if tp has already been allocated
+                if (st5_final$tpmuv [position]==0){
+                        st5_final$tpmuv[position]<-st5_alloc$tpmuv[line]
+                        st5_final$tpsp[position]<-st5_alloc$tpsp[line]
+                }
+                else {
+                        st5_final$tpmuv[position]<-st5_final$tpmuv[position]+st5_alloc$tpmuv[line]
+                        st5_final$tpsp[position]<-st5_final$tpsp[position]+st5_alloc$tpsp[line]
+                }
+        }
+        else {
+                st5_final<- rbind(st5_final, st5_alloc[line,])
+        }
+}
+gc()
+
+# Store 6
+st6_inter = stores_inter[stores_inter$STORE_NO == 6,]
+st6_final = st6_inter
+st6_final$tpmuv<-0
+st6_final$tpsp<-0
+for (line in 1:nrow(st6_alloc)) {
+        if (sum(st6_alloc$ART_NO[line] == st6_final$ART_NO)) {
+                position = (st6_alloc$ART_NO[line] == st6_final$ART_NO)
+                #Check if tp has already been allocated
+                if (st6_final$tpmuv [position]==0){
+                        st6_final$tpmuv[position]<-st6_alloc$tpmuv[line]
+                        st6_final$tpsp[position]<-st6_alloc$tpsp[line]
+                }
+                else {
+                        st6_final$tpmuv[position]<-st6_final$tpmuv[position]+st6_alloc$tpmuv[line]
+                        st6_final$tpsp[position]<-st6_final$tpsp[position]+st6_alloc$tpsp[line]
+                }
+        }
+        else {
+                st6_final<- rbind(st6_final, st6_alloc[line,])
+        }
+}
+gc()
+
+# Store 7
+st7_inter = stores_inter[stores_inter$STORE_NO == 7,]
+st7_final = st7_inter
+st7_final$tpmuv<-0
+st7_final$tpsp<-0
+for (line in 1:nrow(st7_alloc)) {
+        if (sum(st7_alloc$ART_NO[line] == st7_final$ART_NO)) {
+                position = (st7_alloc$ART_NO[line] == st7_final$ART_NO)
+                #Check if tp has already been allocated
+                if (st7_final$tpmuv [position]==0){
+                        st7_final$tpmuv[position]<-st7_alloc$tpmuv[line]
+                        st7_final$tpsp[position]<-st7_alloc$tpsp[line]
+                }
+                else {
+                        st7_final$tpmuv[position]<-st7_final$tpmuv[position]+st7_alloc$tpmuv[line]
+                        st7_final$tpsp[position]<-st7_final$tpsp[position]+st7_alloc$tpsp[line]
+                }
+        }
+        else {
+                st7_final<- rbind(st7_final, st7_alloc[line,])
+        }
+}
+gc()
+
+# Store 8
+st8_inter = stores_inter[stores_inter$STORE_NO == 8,]
+st8_final = st8_inter
+st8_final$tpmuv<-0
+st8_final$tpsp<-0
+for (line in 1:nrow(st8_alloc)) {
+        if (sum(st8_alloc$ART_NO[line] == st8_final$ART_NO)) {
+                position = (st8_alloc$ART_NO[line] == st8_final$ART_NO)
+                #Check if tp has already been allocated
+                if (st8_final$tpmuv [position]==0){
+                        st8_final$tpmuv[position]<-st8_alloc$tpmuv[line]
+                        st8_final$tpsp[position]<-st8_alloc$tpsp[line]
+                }
+                else {
+                        st8_final$tpmuv[position]<-st8_final$tpmuv[position]+st8_alloc$tpmuv[line]
+                        st8_final$tpsp[position]<-st8_final$tpsp[position]+st8_alloc$tpsp[line]
+                }
+        }
+        else {
+                st8_final<- rbind(st8_final, st8_alloc[line,])
+        }
+}
+gc()
+
+# Store 9
+st9_inter = stores_inter[stores_inter$STORE_NO == 9,]
+st9_final = st9_inter
+st9_final$tpmuv<-0
+st9_final$tpsp<-0
+for (line in 1:nrow(st9_alloc)) {
+        if (sum(st9_alloc$ART_NO[line] == st9_final$ART_NO)) {
+                position = (st9_alloc$ART_NO[line] == st9_final$ART_NO)
+                #Check if tp has already been allocated
+                if (st9_final$tpmuv [position]==0){
+                        st9_final$tpmuv[position]<-st9_alloc$tpmuv[line]
+                        st9_final$tpsp[position]<-st9_alloc$tpsp[line]
+                }
+                else {
+                        st9_final$tpmuv[position]<-st9_final$tpmuv[position]+st9_alloc$tpmuv[line]
+                        st9_final$tpsp[position]<-st9_final$tpsp[position]+st9_alloc$tpsp[line]
+                }
+        }
+        else {
+                st9_final<- rbind(st9_final, st9_alloc[line,])
+        }
+}
+gc()
+
+
+##############################################################################
+### Third Party Allocation Step 4 - Checking with Bperf
+##############################################################################
+
+##############################################################################
+### Cleaning Up
+##############################################################################
+
+##############################################################################
+### ReUnite the Finals?
+##############################################################################
+
+##############################################################################
+### Calculating Step 1 - Promo Effect
+##############################################################################
+
+##############################################################################
+### Calculating Step 2 - Aging % and Effect
+##############################################################################
+
+# Indicate the days of aging, the class aging and the aging factor
+
+##############################################################################
+### Calculating Step 3 - ICD's
+##############################################################################
+
+##############################################################################
+### Calculating Step 4 - Supplier Discounts
+##############################################################################
+
+##############################################################################
+### Calculating Step 5 - OCOP
+##############################################################################
+
+##############################################################################
+### Calculating Step 6 - Personnel Expenses
+##############################################################################
+
+##############################################################################
+### Calculating Step 7 - Customer Discounts
+##############################################################################
+
+##############################################################################
+### Calculating Step 8- Sellouts
+##############################################################################
+
+##############################################################################
+### Calculating Step 9 - Selling Costs
+##############################################################################
+
+##############################################################################
+### Calculating Step 10 - COP / NRV / Stock Depreciation
+##############################################################################
+
+##############################################################################
+### Clean Up finals
+##############################################################################
+
+##############################################################################
+### Checks with Adj
+##############################################################################
+
+##############################################################################
+### EXPORTS
+##############################################################################
+
+##############################################################################
+### Summaries
+##############################################################################
 
 # third_parties_inter$<-tp_alloc$pctst1[tp_alloc$STORE_NO == third_parties_inter$STORE_NO[1] & 
 #                         tp_alloc$ART_GRP_NO == third_parties_inter$ART_GRP_NO[1]]
-# write.xlsx(x = store_10, file = "10.xlsx",
-#            sheetName = "TestSheet", row.names = FALSE)
+write.xlsx(x = st9_final, file = "st9_final.xlsx",
+           sheetName = "TestSheet", row.names = FALSE)
 # Finish  - Print Timer
 proc.time() - ptm
