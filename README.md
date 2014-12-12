@@ -57,6 +57,10 @@ In the working directory, there has to be another folder named `Input`, where th
 1. Checks with Adj
 1. EXPORTS
 1. Summaries
+1. Check Reproducibility
+1. Break Down in simple .R scripts
+1. Ask for input
+1. Test with Other month Data
 
 
 ### Outputs

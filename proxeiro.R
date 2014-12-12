@@ -479,13 +479,14 @@ proc.time() - ptm
 
 total_tp_alloc<-rbind(third_parties_inter, TP_99sell_pr_inter)
 rm(third_parties_inter, TP_99sell_pr_inter)
-class(total_tp_alloc$LAST_DELDAY)<-class(total_tp_alloc$LAST_DELDAY_EX_CORR)
-class(total_tp_alloc$LAST_SALEDAY)<-class(total_tp_alloc$LAST_DELDAY_EX_CORR)
+
 #Fix total_tp_alloc to be row bindable with The stores Export
 
 total_tp_alloc[,(ncol(total_tp_alloc)+1):(ncol(total_tp_alloc)+mms+2)]<-0 #30:35
 names(total_tp_alloc)[(ncol(total_tp_alloc)+1-mms):(ncol(total_tp_alloc))]<-names(stores_init)[11:(10+mms)]
 names(total_tp_alloc)[30:31]<-c("LAST_SALEDAY", "LAST_DELDAY")
+class(total_tp_alloc$LAST_DELDAY)<-class(total_tp_alloc$LAST_DELDAY_EX_CORR)
+class(total_tp_alloc$LAST_SALEDAY)<-class(total_tp_alloc$LAST_DELDAY_EX_CORR)
 total_tp_alloc<-total_tp_alloc[,c(1:10,32:(ncol(total_tp_alloc)),30:31,11:29 )]
 
 # Delete the artices with zero stock inmyv and selling price
@@ -501,15 +502,16 @@ total_tp_alloc$STOCK_VALUE_MUV<-0
 total_tp_alloc$STOCK_VALUE_SELL_PR<-0
 
 # Create 9 data frames with articles from the warehouses
-st1_alloc<- total_tp_alloc[, c(1:19)]
-st2_alloc<- total_tp_alloc[, c(1:17,20:21)]
-st3_alloc<- total_tp_alloc[, c(1:17,22:23)]
-st4_alloc<- total_tp_alloc[, c(1:17,24:25)]
-st5_alloc<- total_tp_alloc[, c(1:17,26:27)]
-st6_alloc<- total_tp_alloc[, c(1:17,28:29)]
-st7_alloc<- total_tp_alloc[, c(1:17,30:31)]
-st8_alloc<- total_tp_alloc[, c(1:17,32:33)]
-st9_alloc<- total_tp_alloc[, c(1:17,34:35)]
+#make it dependable on mms
+st1_alloc<- total_tp_alloc[, c(1:mms+15)]
+st2_alloc<- total_tp_alloc[, c(1:mms+13,mms+16:mms+17)]
+st3_alloc<- total_tp_alloc[, c(1:mms+13,mms+18:mms+19)]
+st4_alloc<- total_tp_alloc[, c(1:mms+13,mms+20:mms+21)]
+st5_alloc<- total_tp_alloc[, c(1:mms+13,mms+22:mms+23)]
+st6_alloc<- total_tp_alloc[, c(1:mms+13,mms+24:mms+25)]
+st7_alloc<- total_tp_alloc[, c(1:mms+13,mms+26:mms+27)]
+st8_alloc<- total_tp_alloc[, c(1:mms+13,mms+28:mms+29)]
+st9_alloc<- total_tp_alloc[, c(1:mms+13,mms+30:mms+31)]
 
 
 
@@ -562,6 +564,7 @@ st9_alloc$tot<- st9_alloc$tpmuv+st9_alloc$tpsp
 st9_alloc<-st9_alloc[abs(st9_alloc$tot)>=0.01,]
 st9_alloc$tot<-NULL
 proc.time() - ptm
+gc()
 ##############################################################################
 ### Third Party Allocation Step 3 - Combining with The stores
 ##############################################################################
@@ -785,6 +788,7 @@ proc.time() - ptm
 
 ##############################################################################
 ### Third Party Allocation Step 4 - Checking with Bperf
+##############################################################################
 bperf_check<-data.frame("STORE_NO" = 1:9, "off_stock_fd" = rep(0,9), "off_stock_nf" = rep(0,9))
 for (i in 1:9) {
         bperf_check$off_stock_fd[i]<-read.xlsx("./Original/Bperf0115.xls", sheetName=tabnames[i],
@@ -809,17 +813,22 @@ bperf_check$matched_stock[8]<-sum(st8_final$STOCK_VALUE_MUV)+sum(st8_final$tpmuv
 bperf_check$matched_stock[9]<-sum(st9_final$STOCK_VALUE_MUV)+sum(st9_final$tpmuv)
 bperf_check$diff<-round(bperf_check$off_stock - bperf_check$matched_stock,2)
 
-if (sum(bperf_check$diff) - sum(stock_198) <= 10){
+if (abs(sum(bperf_check$diff)) - abs(sum(stock_198)) <= 10){
         print ("Stock in all stores after warehouse allocation reconciled with the official")
 } else {
         print ("Something went wrong with the warehouse allocation")
 }
 proc.time() - ptm
-##############################################################################
+
 
 ##############################################################################
 ### Cleaning Up
 ##############################################################################
+rm(channel, col,  col_index, HO_prices, i, j, line, position, st1_alloc, st1_inter, 
+   st2_alloc, st2_inter,st3_alloc, st3_inter,st4_alloc, st4_inter,st5_alloc, st5_inter,
+   st6_alloc, st6_inter,st7_alloc, st7_inter,st8_alloc, st8_inter,st9_alloc, st9_inter,
+   store_10, store_11, stores_init, stores_inter, third_parties_init, total_tp_alloc, 
+   tp_alloc, TP99_init, TP99_sell_pr)
 
 ##############################################################################
 ### ReUnite the Finals?
@@ -881,6 +890,22 @@ proc.time() - ptm
 
 ##############################################################################
 ### Summaries
+##############################################################################
+
+##############################################################################
+### Check Reproducibility
+##############################################################################
+
+##############################################################################
+### Break Down in simple .R scripts
+##############################################################################
+
+##############################################################################
+### Ask for input
+##############################################################################
+
+##############################################################################
+### Test with Other month Data
 ##############################################################################
 
 #
