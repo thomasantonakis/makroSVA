@@ -326,7 +326,7 @@ so_grp<-read.xlsx("./Original/SO_per_group_Oct14.xlsx", sheetName="Sheet1",
                   colIndex=1:4,rowIndex=3:400,  header=T)
 gc()
 names(so_grp)<-c("ART_GRP_NO", "SalesP", "SO", "SO_pct") 
-
+proc.time() - ptm
 
 # CU_Discounts
 #######################################
@@ -358,7 +358,7 @@ cu_disc$DISC_pct[is.na(cu_disc$DISC_pct)] <- 0
 cu_disc$DISC_pct[cu_disc$DISC_pct>0] <- 0
 cu_disc$DISC_pct[cu_disc$DISC_pct< -0.8] <- 0
 gc()
-
+proc.time() - ptm
 ########################################
 #### Third Party Allocation Step 1 - %
 ########################################
@@ -373,7 +373,7 @@ for ( i in 1:length(tabnames)){
         df_temp<-0
         gc()
 }
-
+proc.time() - ptm
 # 89 - 95 - 97 based on Stock
 tabnames_tp<-c("PROODOS", "MAKIOS", "FL_South")
 col_index<-1:9*7+10
@@ -411,6 +411,7 @@ for (i in 1: dim(tp_alloc)[1]){
 names(tp_alloc)[13:21]<-c("pctst1","pctst2", "pctst3", "pctst4", "pctst5", "pctst6", "pctst7",
                           "pctst8", "pctst9")
 gc()
+proc.time() - ptm
 # write.xlsx(x = tp_alloc, file = "tp_alloc.xlsx",
 #            sheetName = "TestSheet", row.names = FALSE)
 
@@ -473,7 +474,7 @@ TP_99sell_pr_inter$MUV<-TP_99sell_pr_inter$STOCK_VALUE_MUV /TP_99sell_pr_inter$S
 TP_99sell_pr_inter$LAST_DELDAY_EX_CORR<-as.POSIXct(bsdate)
 TP_99sell_pr_inter<-TP_99sell_pr_inter[,c(6,27,2,1,3,4,28, 7,5,8,29, 9:26)]
 names(TP_99sell_pr_inter)<-names(third_parties_inter)
-
+proc.time() - ptm
 # Unify the 4 Warehouses
 
 total_tp_alloc<-rbind(third_parties_inter, TP_99sell_pr_inter)
@@ -560,7 +561,7 @@ st8_alloc$tot<-NULL
 st9_alloc$tot<- st9_alloc$tpmuv+st9_alloc$tpsp
 st9_alloc<-st9_alloc[abs(st9_alloc$tot)>=0.01,]
 st9_alloc$tot<-NULL
-
+proc.time() - ptm
 ##############################################################################
 ### Third Party Allocation Step 3 - Combining with The stores
 ##############################################################################
@@ -572,7 +573,7 @@ st1_final$tpmuv<-0
 st1_final$tpsp<-0
 for (line in 1:nrow(st1_alloc)) {
         if (sum(st1_alloc$ART_NO[line] == st1_final$ART_NO)) {
-                position = (st1_alloc$ART_NO[line] == st1_final$ART_NO)
+                position = match(TRUE,(st1_alloc$ART_NO[line] == st1_final$ART_NO))
                 #Check if tp has already been allocated
                 if (st1_final$tpmuv [position]==0){
                         st1_final$tpmuv[position]<-st1_alloc$tpmuv[line]
@@ -588,7 +589,7 @@ for (line in 1:nrow(st1_alloc)) {
         }
 }
 gc()
-
+proc.time() - ptm
 # Store 2
 st2_inter = stores_inter[stores_inter$STORE_NO == 2,]
 st2_final = st2_inter
@@ -596,7 +597,7 @@ st2_final$tpmuv<-0
 st2_final$tpsp<-0
 for (line in 1:nrow(st2_alloc)) {
         if (sum(st2_alloc$ART_NO[line] == st2_final$ART_NO)) {
-                position = (st2_alloc$ART_NO[line] == st2_final$ART_NO)
+                position = match(TRUE,(st2_alloc$ART_NO[line] == st2_final$ART_NO))
                 #Check if tp has already been allocated
                 if (st2_final$tpmuv [position]==0){
                         st2_final$tpmuv[position]<-st2_alloc$tpmuv[line]
@@ -612,7 +613,7 @@ for (line in 1:nrow(st2_alloc)) {
         }
 }
 gc()
-
+proc.time() - ptm
 # Store 3
 st3_inter = stores_inter[stores_inter$STORE_NO == 3,]
 st3_final = st3_inter
@@ -620,7 +621,7 @@ st3_final$tpmuv<-0
 st3_final$tpsp<-0
 for (line in 1:nrow(st3_alloc)) {
         if (sum(st3_alloc$ART_NO[line] == st3_final$ART_NO)) {
-                position = (st3_alloc$ART_NO[line] == st3_final$ART_NO)
+                position = match(TRUE,(st3_alloc$ART_NO[line] == st3_final$ART_NO))
                 #Check if tp has already been allocated
                 if (st3_final$tpmuv [position]==0){
                         st3_final$tpmuv[position]<-st3_alloc$tpmuv[line]
@@ -636,7 +637,7 @@ for (line in 1:nrow(st3_alloc)) {
         }
 }
 gc()
-
+proc.time() - ptm
 # Store 4
 st4_inter = stores_inter[stores_inter$STORE_NO == 4,]
 st4_final = st4_inter
@@ -644,7 +645,7 @@ st4_final$tpmuv<-0
 st4_final$tpsp<-0
 for (line in 1:nrow(st4_alloc)) {
         if (sum(st4_alloc$ART_NO[line] == st4_final$ART_NO)) {
-                position = (st4_alloc$ART_NO[line] == st4_final$ART_NO)
+                position = match(TRUE,(st4_alloc$ART_NO[line] == st4_final$ART_NO))
                 #Check if tp has already been allocated
                 if (st4_final$tpmuv [position]==0){
                         st4_final$tpmuv[position]<-st4_alloc$tpmuv[line]
@@ -660,7 +661,7 @@ for (line in 1:nrow(st4_alloc)) {
         }
 }
 gc()
-
+proc.time() - ptm
 # Store 5
 st5_inter = stores_inter[stores_inter$STORE_NO == 5,]
 st5_final = st5_inter
@@ -668,7 +669,7 @@ st5_final$tpmuv<-0
 st5_final$tpsp<-0
 for (line in 1:nrow(st5_alloc)) {
         if (sum(st5_alloc$ART_NO[line] == st5_final$ART_NO)) {
-                position = (st5_alloc$ART_NO[line] == st5_final$ART_NO)
+                position = match(TRUE,(st5_alloc$ART_NO[line] == st5_final$ART_NO))
                 #Check if tp has already been allocated
                 if (st5_final$tpmuv [position]==0){
                         st5_final$tpmuv[position]<-st5_alloc$tpmuv[line]
@@ -684,7 +685,7 @@ for (line in 1:nrow(st5_alloc)) {
         }
 }
 gc()
-
+proc.time() - ptm
 # Store 6
 st6_inter = stores_inter[stores_inter$STORE_NO == 6,]
 st6_final = st6_inter
@@ -692,7 +693,7 @@ st6_final$tpmuv<-0
 st6_final$tpsp<-0
 for (line in 1:nrow(st6_alloc)) {
         if (sum(st6_alloc$ART_NO[line] == st6_final$ART_NO)) {
-                position = (st6_alloc$ART_NO[line] == st6_final$ART_NO)
+                position = match(TRUE,(st6_alloc$ART_NO[line] == st6_final$ART_NO))
                 #Check if tp has already been allocated
                 if (st6_final$tpmuv [position]==0){
                         st6_final$tpmuv[position]<-st6_alloc$tpmuv[line]
@@ -708,7 +709,7 @@ for (line in 1:nrow(st6_alloc)) {
         }
 }
 gc()
-
+proc.time() - ptm
 # Store 7
 st7_inter = stores_inter[stores_inter$STORE_NO == 7,]
 st7_final = st7_inter
@@ -716,7 +717,7 @@ st7_final$tpmuv<-0
 st7_final$tpsp<-0
 for (line in 1:nrow(st7_alloc)) {
         if (sum(st7_alloc$ART_NO[line] == st7_final$ART_NO)) {
-                position = (st7_alloc$ART_NO[line] == st7_final$ART_NO)
+                position = match(TRUE,(st7_alloc$ART_NO[line] == st7_final$ART_NO))
                 #Check if tp has already been allocated
                 if (st7_final$tpmuv [position]==0){
                         st7_final$tpmuv[position]<-st7_alloc$tpmuv[line]
@@ -732,7 +733,7 @@ for (line in 1:nrow(st7_alloc)) {
         }
 }
 gc()
-
+proc.time() - ptm
 # Store 8
 st8_inter = stores_inter[stores_inter$STORE_NO == 8,]
 st8_final = st8_inter
@@ -740,7 +741,7 @@ st8_final$tpmuv<-0
 st8_final$tpsp<-0
 for (line in 1:nrow(st8_alloc)) {
         if (sum(st8_alloc$ART_NO[line] == st8_final$ART_NO)) {
-                position = (st8_alloc$ART_NO[line] == st8_final$ART_NO)
+                position = match(TRUE,(st8_alloc$ART_NO[line] == st8_final$ART_NO))
                 #Check if tp has already been allocated
                 if (st8_final$tpmuv [position]==0){
                         st8_final$tpmuv[position]<-st8_alloc$tpmuv[line]
@@ -756,7 +757,7 @@ for (line in 1:nrow(st8_alloc)) {
         }
 }
 gc()
-
+proc.time() - ptm
 # Store 9
 st9_inter = stores_inter[stores_inter$STORE_NO == 9,]
 st9_final = st9_inter
@@ -764,7 +765,7 @@ st9_final$tpmuv<-0
 st9_final$tpsp<-0
 for (line in 1:nrow(st9_alloc)) {
         if (sum(st9_alloc$ART_NO[line] == st9_final$ART_NO)) {
-                position = (st9_alloc$ART_NO[line] == st9_final$ART_NO)
+                position = match(TRUE,(st9_alloc$ART_NO[line] == st9_final$ART_NO))
                 #Check if tp has already been allocated
                 if (st9_final$tpmuv [position]==0){
                         st9_final$tpmuv[position]<-st9_alloc$tpmuv[line]
@@ -780,10 +781,40 @@ for (line in 1:nrow(st9_alloc)) {
         }
 }
 gc()
-
+proc.time() - ptm
 
 ##############################################################################
 ### Third Party Allocation Step 4 - Checking with Bperf
+bperf_check<-data.frame("STORE_NO" = 1:9, "off_stock_fd" = rep(0,9), "off_stock_nf" = rep(0,9))
+for (i in 1:9) {
+        bperf_check$off_stock_fd[i]<-read.xlsx("./Original/Bperf0115.xls", sheetName=tabnames[i],
+                                          colIndex=22, rowIndex=73, header=FALSE)
+        bperf_check$off_stock_nf[i]<-read.xlsx("./Original/Bperf0115.xls", sheetName=tabnames[i],
+                                               colIndex=22, rowIndex=129, header=FALSE)
+}
+bperf_check$off_stock_fd<-c(do.call("cbind",bperf_check$off_stock_fd)) 
+bperf_check$off_stock_nf<-c(do.call("cbind",bperf_check$off_stock_nf)) 
+bperf_check$off_stock<-bperf_check$off_stock_fd + bperf_check$off_stock_nf
+bperf_check$off_stock_fd<-NULL
+bperf_check$off_stock_nf<-NULL
+bperf_check$matched_stock<-0
+bperf_check$matched_stock[1]<-sum(st1_final$STOCK_VALUE_MUV)+sum(st1_final$tpmuv)
+bperf_check$matched_stock[2]<-sum(st2_final$STOCK_VALUE_MUV)+sum(st2_final$tpmuv)
+bperf_check$matched_stock[3]<-sum(st3_final$STOCK_VALUE_MUV)+sum(st3_final$tpmuv)
+bperf_check$matched_stock[4]<-sum(st4_final$STOCK_VALUE_MUV)+sum(st4_final$tpmuv)
+bperf_check$matched_stock[5]<-sum(st5_final$STOCK_VALUE_MUV)+sum(st5_final$tpmuv)
+bperf_check$matched_stock[6]<-sum(st6_final$STOCK_VALUE_MUV)+sum(st6_final$tpmuv)
+bperf_check$matched_stock[7]<-sum(st7_final$STOCK_VALUE_MUV)+sum(st7_final$tpmuv)
+bperf_check$matched_stock[8]<-sum(st8_final$STOCK_VALUE_MUV)+sum(st8_final$tpmuv)
+bperf_check$matched_stock[9]<-sum(st9_final$STOCK_VALUE_MUV)+sum(st9_final$tpmuv)
+bperf_check$diff<-round(bperf_check$off_stock - bperf_check$matched_stock,2)
+
+if (sum(bperf_check$diff) - sum(stock_198) <= 10){
+        print ("Stock in all stores after warehouse allocation reconciled with the official")
+} else {
+        print ("Something went wrong with the warehouse allocation")
+}
+proc.time() - ptm
 ##############################################################################
 
 ##############################################################################
@@ -852,9 +883,8 @@ gc()
 ### Summaries
 ##############################################################################
 
-# third_parties_inter$<-tp_alloc$pctst1[tp_alloc$STORE_NO == third_parties_inter$STORE_NO[1] & 
-#                         tp_alloc$ART_GRP_NO == third_parties_inter$ART_GRP_NO[1]]
-write.xlsx(x = st9_final, file = "st9_final.xlsx",
-           sheetName = "TestSheet", row.names = FALSE)
+#
+#write.xlsx(x = st4_final, file = "st4_final.xlsx",
+#           sheetName = "TestSheet", row.names = FALSE)
 # Finish  - Print Timer
 proc.time() - ptm
