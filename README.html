@@ -69,11 +69,48 @@ if (window.hljs && document.readyState && document.readyState === "complete") {
 <li>SVA_Sell_costs.xls</li>
 <li>Customer_Discounts.xls (or optionally a folder named <code>CU_Discounts</code> containing 9 files.)</li>
 <li>Stock_Valuation_COMS.xls (or something containing the Aging Factors per Article Group</li>
-<li>SO_per Group.xls</li>
+<li>SO_per_Group.xls</li>
+<li>vs_Adj (for reconciliation)</li>
 </ol>
 </div>
 <div id="steps---check-list" class="section level3">
 <h3>Steps - Check List</h3>
+<ol style="list-style-type: decimal">
+<li>Read From Access the Stores File</li>
+<li>Read From Access the Warehouses File</li>
+<li>Join TP99 with HO prices</li>
+<li>Read from Xls stores 10 and 11</li>
+<li>Check Stock Value with Stat_Margin</li>
+<li>Unify 9 stores with Kalamata and Chania</li>
+<li>Read COP_expenses</li>
+<li>Read Selling Cost Expenses</li>
+<li>Read Percentage Use 20.40</li>
+<li>Read Percentage Use Retros</li>
+<li>Read Percentage Use ICD’s</li>
+<li>Read Aging</li>
+<li>Read SO_per Group</li>
+<li>Read Customer Discounts</li>
+<li>Third Party Allocation (Step 1 of 3) Percentage Calculation</li>
+<li>Third Party Allocation (Step 2 of 3) TL allocation for each store &amp; article</li>
+<li>Third Party Allocation (Step 3 of 3) Connect to stores</li>
+<li>Check with Bperf</li>
+<li>Clean Up</li>
+<li>ReUnite the Finals?</li>
+<li>Calculating Step 1 - Promo Effect</li>
+<li>Calculating Step 2 - Aging % and Effect</li>
+<li>Calculating Step 3 - ICD’s</li>
+<li>Calculating Step 4 - Supplier Discounts</li>
+<li>Calculating Step 5 - OCOP</li>
+<li>Calculating Step 6 - Personnel Expenses</li>
+<li>Calculating Step 7 - Customer Discounts</li>
+<li>Calculating Step 8 - Sellouts</li>
+<li>Calculating Step 9 - Selling Costs</li>
+<li>Calculating Step 10 - COP / NRV / Stock Depreciation</li>
+<li>Clean Up finals</li>
+<li>Checks with Adj</li>
+<li>EXPORTS</li>
+<li>Summaries</li>
+</ol>
 </div>
 <div id="outputs" class="section level3">
 <h3>Outputs</h3>
