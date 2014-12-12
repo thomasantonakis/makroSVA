@@ -255,44 +255,44 @@ Perc_reticd_kif<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15
 Perc_reticd_kif<- Perc_reticd_kif[ -c(2:9, 11:13) ]
 names(Perc_reticd_kif)<-c("ART_GRP_NO", "RETROS", "ICD")
 Perc_reticd_kif$Store<-1
-Perc_reticd_pal<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15,
+Perc_reticd_pal<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=16,
                            colIndex=1:14, rowIndex=1:398, header=TRUE)
 Perc_reticd_pal<- Perc_reticd_pal[ -c(2:9, 11:13) ]
 names(Perc_reticd_pal)<-c("ART_GRP_NO", "RETROS", "ICD")
 Perc_reticd_pal$Store<-2
-Perc_reticd_the<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15,
+Perc_reticd_the<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=17,
                            colIndex=1:14, rowIndex=1:398, header=TRUE)
 Perc_reticd_the<- Perc_reticd_the[ -c(2:9, 11:13) ]
 names(Perc_reticd_the)<-c("ART_GRP_NO", "RETROS", "ICD")
 Perc_reticd_the$Store<-3
 gc()
-Perc_reticd_cre<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15,
+Perc_reticd_cre<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=18,
                            colIndex=1:14, rowIndex=1:398, header=TRUE)
 Perc_reticd_cre<- Perc_reticd_cre[ -c(2:9, 11:13) ]
 names(Perc_reticd_cre)<-c("ART_GRP_NO", "RETROS", "ICD")
 Perc_reticd_cre$Store<-4
-Perc_reticd_pat<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15,
+Perc_reticd_pat<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=19,
                            colIndex=1:14, rowIndex=1:398, header=TRUE)
 Perc_reticd_pat<- Perc_reticd_pat[ -c(2:9, 11:13) ]
 names(Perc_reticd_pat)<-c("ART_GRP_NO", "RETROS", "ICD")
 Perc_reticd_pat$Store<-5
-Perc_reticd_lar<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15,
+Perc_reticd_lar<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=20,
                            colIndex=1:14, rowIndex=1:398, header=TRUE)
 Perc_reticd_lar<- Perc_reticd_lar[ -c(2:9, 11:13) ]
 names(Perc_reticd_lar)<-c("ART_GRP_NO", "RETROS", "ICD")
 Perc_reticd_lar$Store<-6
 gc()
-Perc_reticd_ion<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15,
+Perc_reticd_ion<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=21,
                            colIndex=1:14, rowIndex=1:398, header=TRUE)
 Perc_reticd_ion<- Perc_reticd_ion[ -c(2:9, 11:13) ]
 names(Perc_reticd_ion)<-c("ART_GRP_NO", "RETROS", "ICD")
 Perc_reticd_ion$Store<-7
-Perc_reticd_xan<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15,
+Perc_reticd_xan<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=22,
                            colIndex=1:14, rowIndex=1:398, header=TRUE)
 Perc_reticd_xan<- Perc_reticd_xan[ -c(2:9, 11:13) ]
 names(Perc_reticd_xan)<-c("ART_GRP_NO", "RETROS", "ICD")
 Perc_reticd_xan$Store<-8
-Perc_reticd_vol<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=15,
+Perc_reticd_vol<-read.xlsx("./Original/PercentageUse_Oct2014.xls", sheetIndex=23,
                            colIndex=1:14, rowIndex=1:398, header=TRUE)
 Perc_reticd_vol<- Perc_reticd_vol[ -c(2:9, 11:13) ]
 names(Perc_reticd_vol)<-c("ART_GRP_NO", "RETROS", "ICD")
@@ -502,15 +502,15 @@ total_tp_alloc$STOCK_VALUE_SELL_PR<-0
 
 # Create 9 data frames with articles from the warehouses
 #make it dependable on mms
-st1_alloc<- total_tp_alloc[, c(1:mms+15)]
-st2_alloc<- total_tp_alloc[, c(1:mms+13,mms+16:mms+17)]
-st3_alloc<- total_tp_alloc[, c(1:mms+13,mms+18:mms+19)]
-st4_alloc<- total_tp_alloc[, c(1:mms+13,mms+20:mms+21)]
-st5_alloc<- total_tp_alloc[, c(1:mms+13,mms+22:mms+23)]
-st6_alloc<- total_tp_alloc[, c(1:mms+13,mms+24:mms+25)]
-st7_alloc<- total_tp_alloc[, c(1:mms+13,mms+26:mms+27)]
-st8_alloc<- total_tp_alloc[, c(1:mms+13,mms+28:mms+29)]
-st9_alloc<- total_tp_alloc[, c(1:mms+13,mms+30:mms+31)]
+st1_alloc<- total_tp_alloc[, c(1:(mms+15))]
+st2_alloc<- total_tp_alloc[, c(1:(mms+13),(mms+16):(mms+17))]
+st3_alloc<- total_tp_alloc[, c(1:(mms+13),(mms+18):(mms+19))]
+st4_alloc<- total_tp_alloc[, c(1:(mms+13),(mms+20):(mms+21))]
+st5_alloc<- total_tp_alloc[, c(1:(mms+13),(mms+22):(mms+23))]
+st6_alloc<- total_tp_alloc[, c(1:(mms+13),(mms+24):(mms+25))]
+st7_alloc<- total_tp_alloc[, c(1:(mms+13),(mms+26):(mms+27))]
+st8_alloc<- total_tp_alloc[, c(1:(mms+13),(mms+28):(mms+29))]
+st9_alloc<- total_tp_alloc[, c(1:(mms+13),(mms+30):(mms+31))]
 
 
 
@@ -1100,7 +1100,7 @@ for (i in 1:5){
         }
 }
 rm(i,j)
-
+proc.time() - ptm
 ##############################################################################
 ### Calculating Step 9 - Promo Effect
 ##############################################################################
@@ -1113,15 +1113,60 @@ while (i<=mms) {
 all_stores_final$promo_price<-all_stores_final$promo_price*all_stores_final$STOCK
 all_stores_final$promo_price[is.na(all_stores_final$promo_price)]=all_stores_final$STOCK_VALUE_SELL_PR[is.na(all_stores_final$promo_price)]
 all_stores_final$promo_price=all_stores_final$promo_price+ all_stores_final$tpsp
-
+proc.time() - ptm
 ##############################################################################
 ### Calculating Step 10 - COP / NRV / Stock Depreciation
 ##############################################################################
-
+all_stores_final$Tot_Stock_MUV<-all_stores_final$STOCK_VALUE_MUV + all_stores_final$tpmuv
+all_stores_final$Tot_Stock_SP<-all_stores_final$STOCK_VALUE_SELL_PR + all_stores_final$tpsp
+all_stores_final$promo_fx<-all_stores_final$promo_price - all_stores_final$Tot_Stock_SP
+all_stores_final$aging_fx<- - (all_stores_final$aging_factor * all_stores_final$promo_price)
+all_stores_final$FINAL_STOCK_SP<- all_stores_final$promo_price + all_stores_final$aging_fx
+all_stores_final$ICD_fx<- all_stores_final$ICD * all_stores_final$Tot_Stock_MUV
+all_stores_final$RETROS_fx<- all_stores_final$RETROS * all_stores_final$Tot_Stock_MUV
+all_stores_final$OPC_fx<- all_stores_final$OPC * (all_stores_final$Tot_Stock_MUV - all_stores_final$ICD_fx - all_stores_final$RETROS_fx)
+all_stores_final$PersCOP_fx<- all_stores_final$PersCop * (all_stores_final$Tot_Stock_MUV - all_stores_final$ICD_fx - all_stores_final$RETROS_fx)
+all_stores_final$CuDisc_fx<-all_stores_final$CUDISC * all_stores_final$FINAL_STOCK_SP
+all_stores_final$SO_NRV<-0
+proc.time() - ptm
+# for loop
+# for gos's sake, please lern to use the apply function
+for (i in 1:nrow(all_stores_final)){
+        if (all_stores_final$aging_days[i] < 31){
+                if (all_stores_final$promo_fx[i] !=0){
+                        a<-min(all_stores_final$promo_fx[i], -(all_stores_final$SO_pct[i] * all_stores_final$Tot_Stock_SP[i]) )
+                }
+                else {
+                        a<- -(all_stores_final$SO_pct[i] * all_stores_final$Tot_Stock_SP[i])
+                }
+        } 
+        else {
+                if (all_stores_final$Tot_Stock_MUV[i]>all_stores_final$Tot_Stock_SP[i]){
+                        a<- -(all_stores_final$SO_pct[i] * all_stores_final$Tot_Stock_SP[i])
+                }
+                else {
+                        a<-0
+                }
+        }
+        all_stores_final$SO_NRV[i]<-a
+}
+proc.time() - ptm
+all_stores_final$Marg_Sell_Cost<- all_stores_final$SellCost * all_stores_final$FINAL_STOCK_SP
+# COP
+all_stores_final$COP<-all_stores_final$Tot_Stock_MUV - all_stores_final$ICD_fx - all_stores_final$RETROS_fx + all_stores_final$OPC_fx + all_stores_final$PersCOP_fx
+# NRV
+all_stores_final$NRV<-all_stores_final$FINAL_STOCK_SP + all_stores_final$CuDisc_fx - all_stores_final$SO_NRV - all_stores_final$Marg_Sell_Cost
+# Balance Stock Depreciation
+all_stores_final$TWA<-all_stores_final$COP - all_stores_final$NRV
+all_stores_final$TWA[all_stores_final$COP < all_stores_final$NRV] = 0
+proc.time() - ptm
 ##############################################################################
 ### Clean Up finals
 ##############################################################################
 
+# Take out the Delivery Fucking Fee
+all_stores_final<-all_stores_final[all_stores_final$ART_GRP_NO == 198,]
+proc.time() - ptm
 ##############################################################################
 ### Checks with Adj
 ##############################################################################
