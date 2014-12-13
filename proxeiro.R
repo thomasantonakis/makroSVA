@@ -828,7 +828,7 @@ rm(channel, col,  col_index, HO_prices, i, j, line, position, st1_alloc, st1_int
    st6_alloc, st6_inter,st7_alloc, st7_inter,st8_alloc, st8_inter,st9_alloc, st9_inter,
    store_10, store_11, stores_init, stores_inter, third_parties_init, total_tp_alloc, 
    tp_alloc, TP99_init, TP99_sell_pr)
-
+gc()
 
 ##############################################################################
 ### Calculating Step 1 - ICD's
@@ -940,7 +940,7 @@ for (line in 1:nrow(temp_search)){
 }
 proc.time() - ptm
 rm(temp_search)
-
+gc()
 ##############################################################################
 ### Calculating Step 4 - Customer Discounts
 ##############################################################################
@@ -952,6 +952,7 @@ for (line in 1:nrow(st1_final)){
         }
 }
 proc.time() - ptm
+gc()
 
 temp_search<- cu_disc[cu_disc$STORE_NO == 2,]
 st2_final$CUDISC<-0
@@ -961,6 +962,7 @@ for (line in 1:nrow(st2_final)){
         }
 }
 proc.time() - ptm
+gc()
 
 temp_search<- cu_disc[cu_disc$STORE_NO == 3,]
 st3_final$CUDISC<-0
@@ -970,6 +972,7 @@ for (line in 1:nrow(st3_final)){
         }
 }
 proc.time() - ptm
+gc()
 
 temp_search<- cu_disc[cu_disc$STORE_NO == 4,]
 st4_final$CUDISC<-0
@@ -979,6 +982,7 @@ for (line in 1:nrow(st4_final)){
         }
 }
 proc.time() - ptm
+gc()
 
 temp_search<- cu_disc[cu_disc$STORE_NO == 5,]
 st5_final$CUDISC<-0
@@ -988,6 +992,7 @@ for (line in 1:nrow(st5_final)){
         }
 }
 proc.time() - ptm
+gc()
 
 temp_search<- cu_disc[cu_disc$STORE_NO == 6,]
 st6_final$CUDISC<-0
@@ -997,6 +1002,7 @@ for (line in 1:nrow(st6_final)){
         }
 }
 proc.time() - ptm
+gc()
 
 temp_search<- cu_disc[cu_disc$STORE_NO == 7,]
 st7_final$CUDISC<-0
@@ -1006,6 +1012,7 @@ for (line in 1:nrow(st7_final)){
         }
 }
 proc.time() - ptm
+gc()
 
 temp_search<- cu_disc[cu_disc$STORE_NO == 8,]
 st8_final$CUDISC<-0
@@ -1015,6 +1022,7 @@ for (line in 1:nrow(st8_final)){
         }
 }
 proc.time() - ptm
+gc()
 
 temp_search<- cu_disc[cu_disc$STORE_NO == 9,]
 st9_final$CUDISC<-0
@@ -1027,7 +1035,7 @@ proc.time() - ptm
 rm(temp_search)
 gc()
 ##############################################################################
-### ReUnite the Finals?
+### ReUnite the Finals
 ##############################################################################
 st1_final$STORE_REAL<-1
 st2_final$STORE_REAL<-2
@@ -1130,7 +1138,7 @@ all_stores_final$CuDisc_fx<-all_stores_final$CUDISC * all_stores_final$FINAL_STO
 all_stores_final$SO_NRV<-0
 proc.time() - ptm
 # for loop
-# for gos's sake, please lern to use the apply function
+# for god's sake, please lern to use the apply function
 for (i in 1:nrow(all_stores_final)){
         if (all_stores_final$aging_days[i] < 31){
                 if (all_stores_final$promo_fx[i] !=0){
@@ -1178,6 +1186,12 @@ proc.time() - ptm
 ##############################################################################
 ### Summaries
 ##############################################################################
+tommys = ddply(all_stores_final[all_stores_final$ART_GRP_NO != 198,],c("F_NF", "STORE_REAL"), summarize,STOCK_MUV = sum(Tot_Stock_MUV),
+      Final_STOCK_SP = sum(FINAL_STOCK_SP), ICDs_Capitalized = sum(ICD_fx),
+       Aging = sum(aging_fx), Promo = sum(promo_fx),
+        Supp_Disc = sum(RETROS_fx), Other_2040 = sum(OPC_fx), 
+      Cust_Disc = sum(CuDisc_fx), Exp_SO = sum(SO_NRV), Marg_Sell_Cost = sum(Marg_Sell_Cost),
+        COP= sum(COP), NRV = sum(NRV),TWA=sum(TWA))
 
 ##############################################################################
 ### Check Reproducibility
@@ -1196,7 +1210,7 @@ proc.time() - ptm
 ##############################################################################
 
 #
-#write.xlsx(x = st4_final, file = "st4_final.xlsx",
+# write.xlsx(x = tommys, file = "totals.xlsx",
 #           sheetName = "TestSheet", row.names = FALSE)
 # Finish  - Print Timer
 proc.time() - ptm
